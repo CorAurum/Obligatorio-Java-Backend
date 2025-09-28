@@ -19,5 +19,5 @@ public class Notificacion {
 
     @ManyToOne
     @JoinColumn(name = "cedula_usuario")
-    private usuarioDeSalud usuario;
+    private UsuarioDeSalud usuario;
 }
