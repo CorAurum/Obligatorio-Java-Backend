@@ -22,7 +22,7 @@ public class pdiService {
     private static final String SOAP_ENDPOINT = "https://pdi.enbondi.xyz/ws"; // real service URL
 
     public pdiResponse callObtPersonaPorDoc(String org, String password, String doc, String tipoDoc) {
-        // 1. Craft SOAP request
+        // 1. Craft SOAP request*
         String soapRequest =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
