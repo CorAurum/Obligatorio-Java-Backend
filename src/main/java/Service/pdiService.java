@@ -15,6 +15,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.Period;
 
 @ApplicationScoped
 public class pdiService {
@@ -88,6 +90,7 @@ public class pdiService {
                 result.setApellido2(getTextContent(doc, "apellido2"));
                 result.setSexo(getTextContent(doc, "sexo"));
                 result.setFechaNacimiento(getTextContent(doc, "fechaNacimiento"));
+                result.setMayorDeEdad(MayorDeEdad(result.getFechaNacimiento()));
                 result.setCodNacionalidad(getTextContent(doc, "codNacionalidad"));
                 result.setNombreEnCedula(getTextContent(doc, "nombreEnCedula"));
             }
@@ -114,5 +117,19 @@ public class pdiService {
         }
         return null;
     }
+
+    private boolean MayorDeEdad(String fechaNacimiento) {
+        try {
+            LocalDate birthDate = LocalDate.parse(fechaNacimiento); // Format: yyyy-MM-dd
+            LocalDate today = LocalDate.now();
+            Period age = Period.between(birthDate, today);
+            return age.getYears() >= 18;
+        } catch (Exception e) {
+            // Log or handle parse exception
+            return false; // default to false if parsing fails
+        }
+    }
+
+
 }
 

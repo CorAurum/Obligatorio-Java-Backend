@@ -15,6 +15,7 @@ public class pdiResponse {
     private String fechaNacimiento;
     private String codNacionalidad;
     private String nombreEnCedula;
+    private boolean mayorDeEdad;
 
     private String errorCode;
     private String errorDescription;
@@ -150,6 +151,7 @@ public class pdiResponse {
         this.warnings = warnings;
     }
 
+
     // Custom methods
     public void setError(String code, String description) {
         this.errorCode = code;
@@ -159,4 +161,13 @@ public class pdiResponse {
     public void addWarning(String code, String description) {
         this.warnings.add(code + ": " + description);
     }
+
+    public boolean isMayorDeEdad() {
+        return mayorDeEdad;
+    }
+
+    public void setMayorDeEdad(boolean mayorDeEdad) {
+        this.mayorDeEdad = mayorDeEdad;
+    }
+
 }
