@@ -21,7 +21,7 @@ public class documentoClinico {
     private String estado; // activo, archivado
 
     @ManyToOne
-    @JoinColumn(name = "cedula_usuario")
+    @JoinColumn(name = "cedula_usuario")    
     private UsuarioDeSalud usuario;
 
     @ManyToOne
