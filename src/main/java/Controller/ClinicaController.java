@@ -1,6 +1,6 @@
 package Controller;
 
-import Class.Clinica;
+import Class.centroSalud;
 import Service.ClinicaService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -18,23 +18,23 @@ public class ClinicaController {
     private ClinicaService clinicaService;
 
     @POST
-    public Response crearClinica(Clinica clinica) {
-        clinicaService.crearClinica(clinica);
+    public Response crearClinica(centroSalud centroSalud) {
+        clinicaService.crearClinica(centroSalud);
         return Response.status(Response.Status.CREATED).build();
     }
 
     @GET
     public Response listarClinicas() {
-        List<Clinica> clinicas = clinicaService.listarClinicas();
-        return Response.ok(clinicas).build();
+        List<centroSalud> centroSaluds = clinicaService.listarClinicas();
+        return Response.ok(centroSaluds).build();
     }
 
     @GET
     @Path("/{id}")
     public Response obtenerClinica(@PathParam("id") Long id) {
-        Clinica clinica = clinicaService.obtenerClinica(id);
-        if (clinica != null) {
-            return Response.ok(clinica).build();
+        centroSalud centroSalud = clinicaService.obtenerClinica(id);
+        if (centroSalud != null) {
+            return Response.ok(centroSalud).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -42,9 +42,9 @@ public class ClinicaController {
 
     @PUT
     @Path("/{id}")
-    public Response actualizarClinica(@PathParam("id") Long id, Clinica clinica) {
-        clinica.setIdClinica(id);  // aseguramos que el ID sea el correcto
-        Clinica actualizada = clinicaService.actualizarClinica(clinica);
+    public Response actualizarClinica(@PathParam("id") Long id, centroSalud centroSalud) {
+        centroSalud.setId(id);  // aseguramos que el ID sea el correcto
+        centroSalud actualizada = clinicaService.actualizarClinica(centroSalud);
         return Response.ok(actualizada).build();
     }
 

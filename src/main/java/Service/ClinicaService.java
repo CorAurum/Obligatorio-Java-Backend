@@ -1,6 +1,6 @@
 package Service;
 
-import Class.Clinica;
+import Class.centroSalud;
 import Repository.ClinicaRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -13,15 +13,15 @@ public class ClinicaService {
     @Inject
     private ClinicaRepository clinicaRepo;
 
-    public void crearClinica(Clinica clinica) {
-        clinicaRepo.guardar(clinica);
+    public void crearClinica(centroSalud centroSalud) {
+        clinicaRepo.guardar(centroSalud);
     }
 
-    public Clinica obtenerClinica(Long id) {
+    public centroSalud obtenerClinica(Long id) {
         return clinicaRepo.buscarPorId(id);
     }
 
-    public List<Clinica> listarClinicas() {
+    public List<centroSalud> listarClinicas() {
         return clinicaRepo.listar();
     }
 
@@ -29,7 +29,7 @@ public class ClinicaService {
         clinicaRepo.eliminar(id);
     }
 
-    public Clinica actualizarClinica(Clinica clinica) {
-        return clinicaRepo.actualizar(clinica);
+    public centroSalud actualizarClinica(centroSalud centroSalud) {
+        return clinicaRepo.actualizar(centroSalud);
     }
 }

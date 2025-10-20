@@ -1,8 +1,12 @@
 package Class;
 
+import Class.Usuarios.usuarioDeSalud;
+import Class.Usuarios.profesionalDeSalud;
 import jakarta.persistence.*;
 
+import javax.print.Doc;
 import java.time.LocalDateTime;
+import java.util.List;
 
 // =================== POLÍTICA DE ACCESO ===================
 @Entity
@@ -12,16 +16,25 @@ public class politicaDeAcceso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPolitica;
 
-    private String tipoAcceso; // profesional, clínica, especialidad
     private LocalDateTime fechaCreacion;
     private String vigencia;
-    private String estado; // activa, revocada
+    private boolean estado; // activa, revocada
+
+
+    // relaciones
 
     @ManyToOne
-    @JoinColumn(name = "cedula_usuario")
-    private UsuarioDeSalud usuario;
+    @JoinColumn(name = "CentroSalud_Id")
+    private centroSalud centroSalud;
+
+    @OneToMany(mappedBy = "politicaDeAcceso")
+    private List<Especialidad> especialidad;
+
+    @OneToMany(mappedBy = "politicaDeAcceso")
+    private List<documentoClinico> documentoClinicos;
 
     @ManyToOne
-    @JoinColumn(name = "id_documento")
-    private documentoClinico documento;
+    @JoinColumn(name = "usuarioDeSalud_id")
+    private usuarioDeSalud usuarioDeSalud;
+
 }

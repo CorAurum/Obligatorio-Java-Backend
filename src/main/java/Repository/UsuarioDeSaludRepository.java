@@ -1,6 +1,6 @@
 package Repository;
 
-import Class.UsuarioDeSalud;
+import Class.Usuarios.usuarioDeSalud;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,24 +12,24 @@ public class UsuarioDeSaludRepository {
     @PersistenceContext(unitName = "defaultPU")
     private EntityManager em;
 
-    public void guardar(UsuarioDeSalud usuario) {
+    public void guardar(usuarioDeSalud usuario) {
         em.persist(usuario);
     }
 
-    public UsuarioDeSalud actualizar(UsuarioDeSalud usuario) {
+    public usuarioDeSalud actualizar(usuarioDeSalud usuario) {
         return em.merge(usuario);
     }
 
-    public UsuarioDeSalud buscarPorCedula(String cedula) {
-        return em.find(UsuarioDeSalud.class, cedula);
+    public usuarioDeSalud buscarPorCedula(String cedula) {
+        return em.find(usuarioDeSalud.class, cedula);
     }
 
-    public List<UsuarioDeSalud> listarTodos() {
-        return em.createQuery("SELECT u FROM UsuarioDeSalud u", UsuarioDeSalud.class).getResultList();
+    public List<usuarioDeSalud> listarTodos() {
+        return em.createQuery("SELECT u FROM usuarioDeSalud u", usuarioDeSalud.class).getResultList();
     }
 
     public void eliminar(String cedula) {
-        UsuarioDeSalud usuario = em.find(UsuarioDeSalud.class, cedula);
+        usuarioDeSalud usuario = em.find(usuarioDeSalud.class, cedula);
         if (usuario != null) {
             em.remove(usuario);
         }

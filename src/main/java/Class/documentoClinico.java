@@ -1,5 +1,7 @@
 package Class;
 
+import Class.Usuarios.profesionalDeSalud;
+import Class.Usuarios.usuarioDeSalud;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -12,26 +14,31 @@ public class documentoClinico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDocumento;
-
     private String titulo;
     private String tipoDocumento; // consulta, estudio, informe
     private LocalDateTime fechaCreacion;
-    @Column(columnDefinition = "TEXT")
     private String contenido;
-    private String estado; // activo, archivado
+    private boolean estado; // activo, archivado
+
+    // relaciones
 
     @ManyToOne
-    @JoinColumn(name = "cedula_usuario")    
-    private UsuarioDeSalud usuario;
+    @JoinColumn(name = "centroSalud_id")
+    private centroSalud centroSalud;
 
     @ManyToOne
-    @JoinColumn(name = "id_profesional")
-    private profesionalDeSalud profesional;
+    @JoinColumn(name = "profesionalDeSalud_id")
+    private profesionalDeSalud profesionalDeSalud;
 
     @ManyToOne
-    @JoinColumn(name = "id_clinica")
-    private Clinica clinica;
+    @JoinColumn(name = "politicaDeAcceso_id")
+    private politicaDeAcceso politicaDeAcceso;
 
-    @OneToMany(mappedBy = "documento", cascade = CascadeType.ALL)
-    private List<politicaDeAcceso> politicas;
+    @ManyToOne
+    @JoinColumn(name = "usuarioDeSalud_id")
+    private usuarioDeSalud usuarioDeSalud;
+
+
+
+
 }

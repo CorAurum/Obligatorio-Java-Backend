@@ -1,6 +1,6 @@
 package Controller;
 
-import Class.UsuarioDeSalud;
+import Class.Usuarios.usuarioDeSalud;
 import Service.UsuarioDeSaludService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -17,20 +17,20 @@ public class UsuarioDeSaludController {
     private UsuarioDeSaludService service;
 
     @POST
-    public Response crearUsuario(UsuarioDeSalud usuario) {
+    public Response crearUsuario(usuarioDeSalud usuario) {
         service.crearUsuario(usuario);
         return Response.status(Response.Status.CREATED).entity(usuario).build();
     }
 
     @GET
-    public List<UsuarioDeSalud> listarUsuarios() {
+    public List<usuarioDeSalud> listarUsuarios() {
         return service.listarUsuarios();
     }
 
     @GET
     @Path("/{cedula}")
     public Response obtenerPorCedula(@PathParam("cedula") String cedula) {
-        UsuarioDeSalud usuario = service.obtenerPorCedula(cedula);
+        usuarioDeSalud usuario = service.obtenerPorCedula(cedula);
         if (usuario != null) {
             return Response.ok(usuario).build();
         } else {
@@ -40,8 +40,8 @@ public class UsuarioDeSaludController {
 
     @PUT
     @Path("/{cedula}")
-    public Response actualizarUsuario(@PathParam("cedula") String cedula, UsuarioDeSalud usuarioActualizado) {
-        UsuarioDeSalud actualizado = service.actualizarUsuario(cedula, usuarioActualizado);
+    public Response actualizarUsuario(@PathParam("cedula") String cedula, usuarioDeSalud usuarioActualizado) {
+        usuarioDeSalud actualizado = service.actualizarUsuario(cedula, usuarioActualizado);
         return Response.ok(actualizado).build();
     }
 

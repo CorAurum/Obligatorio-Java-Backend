@@ -1,39 +1,47 @@
 package Class;
 
+import Class.Usuarios.profesionalDeSalud;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import Class.Usuarios.administrador;
 import java.util.List;
 
 // =================== CLÍNICA ===================
 
 @Entity
-public class Clinica {
+public class centroSalud {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idClinica;
+    private Long id;
 
     private String nombre;
     private String direccion;
     private String telefono;
     private String tipoInstitucion;
 
-    @OneToMany(mappedBy = "clinica", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<profesionalDeSalud> profesionales;
+    // relaciones
 
-    @OneToMany(mappedBy = "clinica", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<documentoClinico> documentos;
+    @ManyToOne
+    @JoinColumn(name = "administrador_id")
+    private administrador administrador;
+
+    @OneToMany(mappedBy = "centroSalud")
+    private List<documentoClinico> documentoClinicos;
+
+    @OneToMany(mappedBy = "centroSalud")
+    private List<profesionalDeSalud> profesionalDeSaluds;
+
+    @OneToMany(mappedBy = "centroSalud")
+    private List<politicaDeAcceso> politicaDeAccesos;
 
     // === Getters y Setters ===
 
-    public Long getIdClinica() {
-        return idClinica;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdClinica(Long idClinica) {
-        this.idClinica = idClinica;
+    public void setId(Long idClinica) {
+        this.id = idClinica;
     }
 
     public String getNombre() {
@@ -68,19 +76,4 @@ public class Clinica {
         this.tipoInstitucion = tipoInstitucion;
     }
 
-    public List<profesionalDeSalud> getProfesionales() {
-        return profesionales;
-    }
-
-    public void setProfesionales(List<profesionalDeSalud> profesionales) {
-        this.profesionales = profesionales;
-    }
-
-    public List<documentoClinico> getDocumentos() {
-        return documentos;
-    }
-
-    public void setDocumentos(List<documentoClinico> documentos) {
-        this.documentos = documentos;
-    }
 }
