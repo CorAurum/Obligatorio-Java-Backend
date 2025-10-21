@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 public class usuarioDeSalud extends usuario {
 
-
     //relaciones
 
     @OneToMany(mappedBy = "usuarioDeSalud")
