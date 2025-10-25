@@ -121,7 +121,64 @@ public class UsuarioDeSaludController {
 
     // FIN ABML BASICO
 
-    // SOAP SERVICE PARA INUS
+    // ENDPOINTS PARA COMUNICACIONES CON LOS COMPONENTES PERIFERICOS
+
+    @POST
+    @Path("/externo") // endpoint expuesto a componentes periféricos
+    @Transactional
+    public Response crearOActualizarUsuarioDesdePeriferico(UsuarioDTO req) {
+        try {
+            if (req.ci == null || req.ci.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("El campo 'ci' es obligatorio.").build();
+            }
+
+            // Buscar usuario existente por CI
+            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.ci);
+
+            if (existente == null) {
+                // 🆕 Crear nuevo usuario
+                usuarioDeSalud nuevo = new usuarioDeSalud();
+                nuevo.setCi(req.ci);
+                if (req.email != null && !req.email.isBlank()) nuevo.setEmail(req.email);
+                if (req.nombre != null && !req.nombre.isBlank()) nuevo.setNombre(req.nombre);
+                if (req.apellido != null && !req.apellido.isBlank()) nuevo.setApellido(req.apellido);
+                if (req.direccion != null && !req.direccion.isBlank()) nuevo.setDireccion(req.direccion);
+                if (req.telefono != null && !req.telefono.isBlank()) nuevo.setTelefono(req.telefono);
+                if (req.fechaNacimiento != null && !req.fechaNacimiento.isBlank())
+                    nuevo.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento));
+                nuevo.setFechaRegistro(LocalDateTime.now());
+
+                em.persist(nuevo);
+
+                return Response.status(Response.Status.CREATED)
+                        .entity("Usuario creado correctamente (desde componente periférico)").build();
+
+            } else {
+                // ✏️ Actualizar usuario existente SOLO si vienen valores nuevos
+                if (req.email != null && !req.email.isBlank()) existente.setEmail(req.email);
+                if (req.nombre != null && !req.nombre.isBlank()) existente.setNombre(req.nombre);
+                if (req.apellido != null && !req.apellido.isBlank()) existente.setApellido(req.apellido);
+                if (req.direccion != null && !req.direccion.isBlank()) existente.setDireccion(req.direccion);
+                if (req.telefono != null && !req.telefono.isBlank()) existente.setTelefono(req.telefono);
+                if (req.fechaNacimiento != null && !req.fechaNacimiento.isBlank())
+                    existente.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento));
+                // No se toca fechaRegistro (solo se setea al crear)
+
+                em.merge(existente);
+
+                return Response.ok("Usuario actualizado correctamente (desde componente periférico)").build();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError()
+                    .entity("Error al crear o actualizar usuario: " + e.getMessage())
+                    .build();
+        }
+    }
+
+
 
 }
 
