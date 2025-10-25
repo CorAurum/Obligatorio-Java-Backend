@@ -133,6 +133,8 @@ public class UsuarioDeSaludController {
                         .entity("El campo 'cedulaIdentidad' es obligatorio.").build();
             }
 
+            System.out.println("DEBUG JSON recibido: " + req.fechaNacimiento);
+
             // Buscar usuario existente por cedulaIdentidad
             usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.cedulaIdentidad);
 
