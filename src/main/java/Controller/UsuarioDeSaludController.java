@@ -29,7 +29,7 @@ public class UsuarioDeSaludController {
 
     // DTO (objeto para recibir los datos del POST)
     public static class UsuarioDTO {
-        public String ci;
+        public String cedulaIdentidad;
         public String email;
         public String nombre;
         public String apellido;
@@ -42,18 +42,18 @@ public class UsuarioDeSaludController {
     @Transactional
     public Response crearOActualizarUsuario(UsuarioDTO req) {
         try {
-            if (req.ci == null || req.ci.isEmpty()) {
+            if (req.cedulaIdentidad == null || req.cedulaIdentidad.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("El campo 'ci' es obligatorio.").build();
+                        .entity("El campo 'cedulaIdentidad' es obligatorio.").build();
             }
 
-            // Buscar usuario existente por CI
-            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.ci);
+            // Buscar usuario existente por cedulaIdentidad
+            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.cedulaIdentidad);
 
             if (existente == null) {
                 // 🆕 Crear nuevo usuario
                 usuarioDeSalud nuevo = new usuarioDeSalud();
-                nuevo.setCi(req.ci);
+                nuevo.setCi(req.cedulaIdentidad);
                 nuevo.setEmail(req.email);
                 nuevo.setNombre(req.nombre);
                 nuevo.setApellido(req.apellido);
@@ -128,18 +128,18 @@ public class UsuarioDeSaludController {
     @Transactional
     public Response crearOActualizarUsuarioDesdePeriferico(UsuarioDTO req) {
         try {
-            if (req.ci == null || req.ci.isEmpty()) {
+            if (req.cedulaIdentidad == null || req.cedulaIdentidad.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("El campo 'ci' es obligatorio.").build();
+                        .entity("El campo 'cedulaIdentidad' es obligatorio.").build();
             }
 
-            // Buscar usuario existente por CI
-            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.ci);
+            // Buscar usuario existente por cedulaIdentidad
+            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.cedulaIdentidad);
 
             if (existente == null) {
                 // 🆕 Crear nuevo usuario
                 usuarioDeSalud nuevo = new usuarioDeSalud();
-                nuevo.setCi(req.ci);
+                nuevo.setCi(req.cedulaIdentidad);
                 if (req.email != null && !req.email.isBlank()) nuevo.setEmail(req.email);
                 if (req.nombre != null && !req.nombre.isBlank()) nuevo.setNombre(req.nombre);
                 if (req.apellido != null && !req.apellido.isBlank()) nuevo.setApellido(req.apellido);
