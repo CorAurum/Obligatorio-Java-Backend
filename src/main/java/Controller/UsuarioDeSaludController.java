@@ -147,8 +147,9 @@ public class UsuarioDeSaludController {
                 if (req.apellido != null && !req.apellido.isBlank()) nuevo.setApellido(req.apellido);
                 if (req.direccion != null && !req.direccion.isBlank()) nuevo.setDireccion(req.direccion);
                 if (req.telefono != null && !req.telefono.isBlank()) nuevo.setTelefono(req.telefono);
-                if (req.fechaNacimiento != null && !req.fechaNacimiento.isBlank())
-                    nuevo.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento));
+                if (req.fechaNacimiento != null && !req.fechaNacimiento.trim().isEmpty()) {
+                    nuevo.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento.trim()));
+                }
                 nuevo.setFechaRegistro(LocalDateTime.now());
 
                 em.persist(nuevo);
@@ -163,8 +164,9 @@ public class UsuarioDeSaludController {
                 if (req.apellido != null && !req.apellido.isBlank()) existente.setApellido(req.apellido);
                 if (req.direccion != null && !req.direccion.isBlank()) existente.setDireccion(req.direccion);
                 if (req.telefono != null && !req.telefono.isBlank()) existente.setTelefono(req.telefono);
-                if (req.fechaNacimiento != null && !req.fechaNacimiento.isBlank())
-                    existente.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento));
+                if (req.fechaNacimiento != null && !req.fechaNacimiento.trim().isEmpty()) {
+                    existente.setFechaNacimiento(LocalDate.parse(req.fechaNacimiento.trim()));
+                }
                 // No se toca fechaRegistro (solo se setea al crear)
 
                 em.merge(existente);
