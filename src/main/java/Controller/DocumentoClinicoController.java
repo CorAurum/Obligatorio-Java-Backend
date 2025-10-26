@@ -6,6 +6,7 @@ import Class.centroSalud;
 import Class.Usuarios.profesionalDeSalud;
 import Class.politicaDeAcceso;
 import Service.DocumentoClinicoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -43,6 +44,8 @@ public class DocumentoClinicoController {
         public String nombreProfesional;
         public String fechaCreacion;
     }
+
+
 
     // ================== ENDPOINTS CRUD ==================
 
@@ -111,8 +114,14 @@ public class DocumentoClinicoController {
     @POST
     @Path("/externo")
     @Transactional
-    public Response crearOActualizarDocumentoDesdePeriferico(DocumentoClinicoDTO req) {
+    public Response crearOActualizarDocumentoDesdePeriferico(String rawJson) {
+        System.out.println("📩 JSON crudo recibido: " + rawJson);
+
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules(); // Para LocalDateTime si lo necesitás
+            DocumentoClinicoDTO req = mapper.readValue(rawJson, DocumentoClinicoDTO.class);
+
             if (req.idDocumentoOrigen == null || req.idDocumentoOrigen.isBlank()) {
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity("El campo 'idDocumentoOrigen' es obligatorio.").build();
@@ -122,13 +131,13 @@ public class DocumentoClinicoController {
             documentoClinico existente = em.createQuery(
                             "SELECT d FROM documentoClinico d WHERE d.idDocumentoOrigen = :idOrigen",
                             documentoClinico.class)
-                    .setParameter("idOrigen", req.idDocumentoOrigen)
+                    .setParameter("idOrigen", Long.valueOf(req.idDocumentoOrigen))
                     .getResultStream()
                     .findFirst()
                     .orElse(null);
 
             if (existente == null) {
-                // Crear nuevo documento
+                System.out.println("🆕 Creando nuevo documento desde periférico...");
                 documentoClinico nuevo = new documentoClinico();
                 nuevo.setIdDocumentoOrigen(Long.valueOf(req.idDocumentoOrigen));
                 nuevo.setArea(req.area);
@@ -166,17 +175,19 @@ public class DocumentoClinicoController {
                 }
 
                 // Buscar usuario de salud por cédula
-                if (req.usuarioDeSaludId != null) {
+                if (req.usuarioDeSaludId != null && !req.usuarioDeSaludId.isBlank()) {
                     usuarioDeSalud usuario = em.find(usuarioDeSalud.class, req.usuarioDeSaludId);
                     nuevo.setUsuarioDeSalud(usuario);
                 }
 
                 em.persist(nuevo);
+                System.out.println("✅ Documento clínico creado correctamente (desde periférico)");
                 return Response.status(Response.Status.CREATED)
                         .entity("Documento clínico creado correctamente (desde periférico)").build();
 
             } else {
-                // Actualizar documento existente
+                System.out.println("✏️ Actualizando documento existente desde periférico...");
+
                 if (req.area != null && !req.area.isBlank())
                     existente.setArea(req.area);
 
@@ -194,6 +205,7 @@ public class DocumentoClinicoController {
                 }
 
                 em.merge(existente);
+                System.out.println("✅ Documento clínico actualizado correctamente (desde periférico)");
                 return Response.ok("Documento clínico actualizado correctamente (desde periférico)").build();
             }
 
@@ -204,6 +216,6 @@ public class DocumentoClinicoController {
                     .build();
         }
     }
-
-
 }
+
+
