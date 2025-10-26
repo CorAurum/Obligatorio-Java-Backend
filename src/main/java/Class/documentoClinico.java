@@ -63,11 +63,11 @@ public class documentoClinico {
         this.politicaDeAcceso = politicaDeAcceso;
     }
 
-    public Class.Usuarios.profesionalDeSalud getProfesionalDeSalud() {
+    public profesionalDeSalud getProfesionalDeSalud() {
         return profesionalDeSalud;
     }
 
-    public void setProfesionalDeSalud(Class.Usuarios.profesionalDeSalud profesionalDeSalud) {
+    public void setProfesionalDeSalud(profesionalDeSalud profesionalDeSalud) {
         this.profesionalDeSalud = profesionalDeSalud;
     }
 

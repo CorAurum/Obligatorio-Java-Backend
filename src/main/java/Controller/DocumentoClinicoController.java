@@ -64,7 +64,7 @@ public class DocumentoClinicoController {
             if (req.politicaDeAccesoId != null)
                 nuevo.setPoliticaDeAcceso(em.find(politicaDeAcceso.class, req.politicaDeAccesoId));
             if (req.usuarioDeSaludId != null)
-                nuevo.setUsuarioDeSalud(em.find(Class.Usuarios.usuarioDeSalud.class, req.usuarioDeSaludId));
+                nuevo.setUsuarioDeSalud(em.find(usuarioDeSalud.class, req.usuarioDeSaludId));
 
             em.persist(nuevo);
             return Response.status(Response.Status.CREATED).entity(nuevo).build();
