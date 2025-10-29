@@ -18,6 +18,7 @@ public class centroSalud {
     private String direccion;
     private String telefono;
     private String tipoInstitucion;
+    private String urlWebService;
 
     // relaciones
 

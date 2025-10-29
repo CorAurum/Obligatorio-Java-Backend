@@ -119,19 +119,29 @@ public class DocumentoClinicoController {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.findAndRegisterModules(); // Para LocalDateTime si lo necesitás
-            DocumentoClinicoDTO req = mapper.readValue(rawJson, DocumentoClinicoDTO.class);
+            mapper.findAndRegisterModules();
 
-            if (req.idDocumentoOrigen == null || req.idDocumentoOrigen.isBlank()) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("El campo 'idDocumentoOrigen' es obligatorio.").build();
+            // Adaptamos el DTO a los nombres del JSON actual
+            class DocumentoMetadatoDto {
+                public Long idDocumento;
+                public Long idProfesional;
+                public Long idUsuario;
+                public Long idClinica;
+                public String area;
+                public String cedulaUsuario;
             }
 
-            // Buscar si ya existe un documento con ese id de origen
+            DocumentoMetadatoDto req = mapper.readValue(rawJson, DocumentoMetadatoDto.class);
+
+            if (req.idDocumento == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("El campo 'idDocumento' es obligatorio.").build();
+            }
+
             documentoClinico existente = em.createQuery(
                             "SELECT d FROM documentoClinico d WHERE d.idDocumentoOrigen = :idOrigen",
                             documentoClinico.class)
-                    .setParameter("idOrigen", Long.valueOf(req.idDocumentoOrigen))
+                    .setParameter("idOrigen", req.idDocumento)
                     .getResultStream()
                     .findFirst()
                     .orElse(null);
@@ -139,44 +149,26 @@ public class DocumentoClinicoController {
             if (existente == null) {
                 System.out.println("🆕 Creando nuevo documento desde periférico...");
                 documentoClinico nuevo = new documentoClinico();
-                nuevo.setIdDocumentoOrigen(Long.valueOf(req.idDocumentoOrigen));
+                nuevo.setIdDocumentoOrigen(req.idDocumento);
                 nuevo.setArea(req.area);
                 nuevo.setEstado(true);
+                nuevo.setFechaCreacion(LocalDateTime.now());
 
-                // Manejo de la fecha
-                if (req.fechaCreacion != null && !req.fechaCreacion.trim().isEmpty()) {
-                    try {
-                        nuevo.setFechaCreacion(LocalDateTime.parse(req.fechaCreacion.trim(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                    } catch (Exception e) {
-                        System.out.println("⚠️ Fecha inválida, se usará la actual: " + req.fechaCreacion);
-                        nuevo.setFechaCreacion(LocalDateTime.now());
-                    }
-                } else {
-                    nuevo.setFechaCreacion(LocalDateTime.now());
-                }
-
-                // Buscar profesional por nombre
-                if (req.nombreProfesional != null && !req.nombreProfesional.isBlank()) {
-                    profesionalDeSalud profesional = em.createQuery(
-                                    "SELECT p FROM profesionalDeSalud p WHERE p.nombre = :nombre",
-                                    profesionalDeSalud.class)
-                            .setParameter("nombre", req.nombreProfesional)
-                            .getResultStream()
-                            .findFirst()
-                            .orElse(null);
-
+                // Buscar profesional por ID
+                if (req.idProfesional != null) {
+                    profesionalDeSalud profesional = em.find(profesionalDeSalud.class, req.idProfesional);
                     nuevo.setProfesionalDeSalud(profesional);
                 }
 
-                // Buscar clínica por ID
-                if (req.centroSaludId != null) {
-                    centroSalud clinicaEntidad = em.find(centroSalud.class, req.centroSaludId);
+                // Buscar clínica
+                if (req.idClinica != null) {
+                    centroSalud clinicaEntidad = em.find(centroSalud.class, req.idClinica);
                     nuevo.setCentroSalud(clinicaEntidad);
                 }
 
-                // Buscar usuario de salud por cédula
-                if (req.usuarioDeSaludId != null && !req.usuarioDeSaludId.isBlank()) {
-                    usuarioDeSalud usuario = em.find(usuarioDeSalud.class, req.usuarioDeSaludId);
+                // Buscar usuario por cédula
+                if (req.cedulaUsuario != null && !req.cedulaUsuario.isBlank()) {
+                    usuarioDeSalud usuario = em.find(usuarioDeSalud.class, req.cedulaUsuario);
                     nuevo.setUsuarioDeSalud(usuario);
                 }
 
@@ -191,16 +183,8 @@ public class DocumentoClinicoController {
                 if (req.area != null && !req.area.isBlank())
                     existente.setArea(req.area);
 
-                // Actualizar profesional si aplica
-                if (req.nombreProfesional != null && !req.nombreProfesional.isBlank()) {
-                    profesionalDeSalud profesional = em.createQuery(
-                                    "SELECT p FROM profesionalDeSalud p WHERE p.nombre = :nombre",
-                                    profesionalDeSalud.class)
-                            .setParameter("nombre", req.nombreProfesional)
-                            .getResultStream()
-                            .findFirst()
-                            .orElse(null);
-
+                if (req.idProfesional != null) {
+                    profesionalDeSalud profesional = em.find(profesionalDeSalud.class, req.idProfesional);
                     existente.setProfesionalDeSalud(profesional);
                 }
 
@@ -216,6 +200,7 @@ public class DocumentoClinicoController {
                     .build();
         }
     }
+
 }
 
 
