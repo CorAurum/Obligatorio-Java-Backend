@@ -50,6 +50,7 @@ public class CentroDeSalud {
     @JoinColumn(name = "creado_por")
     private Administrador creadoPor;
 
+
     public enum EstadoCentro { HABILITADO, INHABILITADO }
 
     public CentroDeSalud() {}
@@ -87,4 +88,8 @@ public class CentroDeSalud {
 
     public List<PoliticaDeAcceso> getPoliticas() { return politicas; }
     public void setPoliticas(List<PoliticaDeAcceso> politicas) { this.politicas = politicas; }
+
+    public Administrador getCreadoPor() {return creadoPor;}
+    public void setCreadoPor(Administrador creadoPor) { this.creadoPor = creadoPor;}
+
 }
