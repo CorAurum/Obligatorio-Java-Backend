@@ -3,6 +3,8 @@ package Entity;
 
 import Entity.Usuarios.Administrador;
 import Entity.Usuarios.ProfesionalDeSalud;
+import Entity.Usuarios.UsuarioLocal;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -35,20 +37,26 @@ public class CentroDeSalud {
     private EstadoCentro estado;
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("centro-profesionales")
     private List<ProfesionalDeSalud> profesionales = new ArrayList<>();
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("centro-documentos")
     private List<DocumentoClinico> documentosClinicos = new ArrayList<>();
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("centro-politicas")
     private List<PoliticaDeAcceso> politicas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "centroDeSalud", fetch = FetchType.LAZY)
+    @JsonManagedReference("centro-usuariosLocal")
+    private List<UsuarioLocal> usuariosLocal = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creado_por")
+    @JsonBackReference("admin-centros")
     private Administrador creadoPor;
+
 
 
     public enum EstadoCentro { HABILITADO, INHABILITADO }
@@ -88,6 +96,9 @@ public class CentroDeSalud {
 
     public List<PoliticaDeAcceso> getPoliticas() { return politicas; }
     public void setPoliticas(List<PoliticaDeAcceso> politicas) { this.politicas = politicas; }
+
+    public List<UsuarioLocal> getUsuariosLocal() {return usuariosLocal;}
+    public void setUsuariosLocal(List<UsuarioLocal> usuariosLocal) {this.usuariosLocal = usuariosLocal;}
 
     public Administrador getCreadoPor() {return creadoPor;}
     public void setCreadoPor(Administrador creadoPor) { this.creadoPor = creadoPor;}

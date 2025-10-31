@@ -37,24 +37,28 @@ public class Usuario {
 
     // Relations - bidirectional
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("usuario-identificadores")
     private List<IdentificadorUsuario> identificadores = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("usuario-documentos")
     private List<DocumentoClinico> documentosClinicos = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("usuario-politicas")
     private List<PoliticaDeAcceso> politicasDeAcceso = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuarioDestino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("usuario-notificaciones")
     private List<Notificacion> notificaciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("usuario-accesos")
     private List<AccesoLog> accesos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @JsonManagedReference("usuario-usuariosLocal")
+    private List<UsuarioLocal> usuariosLocales = new ArrayList<>();
 
     // Enum for estado
     public enum EstadoUsuario {

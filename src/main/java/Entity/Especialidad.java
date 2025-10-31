@@ -22,11 +22,11 @@ public class Especialidad {
     private String descripcion;
 
     @ManyToMany(mappedBy = "especialidades", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonBackReference("profesional-especialidades")
     private List<ProfesionalDeSalud> profesionales = new ArrayList<>();
 
     @ManyToMany(mappedBy = "especialidades", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonBackReference("politica-especialidades")
     private List<PoliticaDeAcceso> politicas = new ArrayList<>();
 
     public Especialidad() {}

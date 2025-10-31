@@ -1,6 +1,7 @@
 package Entity.Usuarios;
 
 import Entity.CentroDeSalud;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -25,9 +26,11 @@ public class Administrador {
 
     // Relación: centros creados (opcional, bidireccional si centro tiene creadoPor)
     @OneToMany(mappedBy = "creadoPor", fetch = FetchType.LAZY)
+    @JsonManagedReference("admin-centros")
     private List<CentroDeSalud> centrosCreados = new ArrayList<>();
 
     @OneToMany(mappedBy = "habilitadoPor", fetch = FetchType.LAZY)
+    @JsonManagedReference("admin-profesionales")
     private List<ProfesionalDeSalud> profesionalesHabilitados = new ArrayList<>();
 
     public Administrador() {}

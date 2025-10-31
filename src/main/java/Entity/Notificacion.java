@@ -23,7 +23,7 @@ public class Notificacion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_destino_id")
-    @JsonBackReference
+    @JsonBackReference("usuario-notificaciones")
     private Usuario usuarioDestino;
 
     private LocalDateTime fechaEnvio;

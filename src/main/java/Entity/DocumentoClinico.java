@@ -34,21 +34,21 @@ public class DocumentoClinico {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "centro_id")
-    @JsonBackReference
+    @JsonBackReference("centro-documentos")
     private CentroDeSalud centroDeSalud;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor_profesional_id")
-    @JsonBackReference
+    @JsonBackReference("profesional-documentos")
     private ProfesionalDeSalud autorProfesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonBackReference
+    @JsonBackReference("usuario-documentos")
     private Usuario usuario;
 
     @OneToMany(mappedBy = "documentoClinico", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("documento-accesos")
     private List<AccesoLog> accesos = new ArrayList<>();
 
     public enum EstadoDocumento { ACTIVO, ARCHIVADO }

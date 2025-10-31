@@ -23,19 +23,19 @@ public class PoliticaDeAcceso {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonBackReference
+    @JsonBackReference(value = "usuario-politicas")
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "centro_id")
-    @JsonBackReference
+    @JsonBackReference(value = "centro-politicas")
     private CentroDeSalud centroDeSalud;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "politica_especialidad",
             joinColumns = @JoinColumn(name = "politica_id"),
             inverseJoinColumns = @JoinColumn(name = "especialidad_id"))
-    @JsonManagedReference
+    @JsonManagedReference(value = "politica-especialidades")
     private List<Especialidad> especialidades = new ArrayList<>();
 
     private LocalDateTime fechaCreacion;

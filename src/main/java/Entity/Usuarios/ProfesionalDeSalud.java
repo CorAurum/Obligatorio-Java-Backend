@@ -35,21 +35,23 @@ public class ProfesionalDeSalud {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "centro_id")
-    @JsonBackReference
+    @JsonBackReference("centro-profesionales")
     private CentroDeSalud centroDeSalud;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "profesional_especialidad",
             joinColumns = @JoinColumn(name = "profesional_id"),
             inverseJoinColumns = @JoinColumn(name = "especialidad_id"))
+    @JsonManagedReference("profesional-especialidades")
     private List<Especialidad> especialidades = new ArrayList<>();
 
     @OneToMany(mappedBy = "autorProfesional", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("profesional-documentos")
     private List<DocumentoClinico> documentos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "habilitado_por")
+    @JsonBackReference("admin-profesionales")
     private Administrador habilitadoPor;
 
     public enum EstadoProfesional { ACTIVO, SUSPENDIDO }

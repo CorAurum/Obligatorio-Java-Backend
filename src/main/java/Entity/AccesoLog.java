@@ -22,12 +22,12 @@ public class AccesoLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "documento_id")
-    @JsonBackReference
+    @JsonBackReference("documento-accesos")
     private DocumentoClinico documentoClinico;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonBackReference
+    @JsonBackReference("usuario-accesos")
     private Usuario usuario;
 
     private LocalDateTime fechaAcceso;

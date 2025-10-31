@@ -26,12 +26,12 @@ public class UsuarioLocal {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "centro_id")
-    @JsonBackReference
+    @JsonBackReference("centro-usuariosLocal")
     private CentroDeSalud centroDeSalud;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_inus_id")
-    @JsonBackReference
+    @JsonBackReference("usuario-usuariosLocal")
     private Usuario usuario;
 
     public UsuarioLocal() {}

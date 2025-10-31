@@ -28,7 +28,7 @@ public class IdentificadorUsuario {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonBackReference
+    @JsonBackReference("usuario-identificadores")
     private Usuario usuario;
 
     public IdentificadorUsuario() {}
