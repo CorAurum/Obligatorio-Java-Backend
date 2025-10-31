@@ -1,6 +1,6 @@
 package Service;
 
-import Class.documentoClinico;
+import Entity.DocumentoClinico;
 import Repository.DocumentoClinicoRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -13,21 +13,21 @@ public class DocumentoClinicoService {
     @Inject
     private DocumentoClinicoRepository repository;
 
-    public void crearDocumento(documentoClinico documento) {
+    public void crearDocumento(DocumentoClinico documento) {
         documento.setFechaCreacion(LocalDateTime.now());
         repository.guardar(documento);
     }
 
-    public documentoClinico obtenerPorId(Long idDocumento) {
+    public DocumentoClinico obtenerPorId(Long idDocumento) {
         return repository.buscarPorId(idDocumento);
     }
 
-    public List<documentoClinico> listarDocumentos() {
+    public List<DocumentoClinico> listarDocumentos() {
         return repository.listarTodos();
     }
 
-    public documentoClinico actualizarDocumento(Long idDocumento, documentoClinico documentoNuevo) {
-        documentoClinico existente = repository.buscarPorId(idDocumento);
+    public DocumentoClinico actualizarDocumento(Long idDocumento, DocumentoClinico documentoNuevo) {
+        DocumentoClinico existente = repository.buscarPorId(idDocumento);
         if (existente != null) {
             existente.setTitulo(documentoNuevo.getTitulo());
             existente.setTipoDocumento(documentoNuevo.getTipoDocumento());

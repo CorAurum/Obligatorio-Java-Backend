@@ -1,6 +1,6 @@
 package Service;
 
-import Class.Usuarios.usuarioDeSalud;
+import Entity.Usuarios.UsuarioLocal;
 import Repository.UsuarioDeSaludRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -12,20 +12,20 @@ public class UsuarioDeSaludService {
     @Inject
     private UsuarioDeSaludRepository repository;
 
-    public void crearUsuario(usuarioDeSalud usuario) {
+    public void crearUsuario(UsuarioLocal usuario) {
         repository.guardar(usuario);
     }
 
-    public usuarioDeSalud obtenerPorCedula(String cedula) {
+    public UsuarioLocal obtenerPorCedula(String cedula) {
         return repository.buscarPorCedula(cedula);
     }
 
-    public List<usuarioDeSalud> listarUsuarios() {
+    public List<UsuarioLocal> listarUsuarios() {
         return repository.listarTodos();
     }
 
-    public usuarioDeSalud actualizarUsuario(String cedula, usuarioDeSalud usuarioNuevo) {
-        usuarioDeSalud existente = repository.buscarPorCedula(cedula);
+    public UsuarioLocal actualizarUsuario(String cedula, UsuarioLocal usuarioNuevo) {
+        UsuarioLocal existente = repository.buscarPorCedula(cedula);
         if (existente != null) {
             existente.setNombre(usuarioNuevo.getNombre());
             existente.setApellido(usuarioNuevo.getApellido());

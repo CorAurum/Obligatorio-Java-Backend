@@ -1,6 +1,6 @@
 package Repository;
 
-import Class.centroSalud;
+import Entity.CentroDeSalud;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,26 +12,26 @@ public class ClinicaRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public void guardar(centroSalud centroSalud) {
+    public void guardar(CentroDeSalud centroSalud) {
         em.persist(centroSalud);
     }
 
-    public centroSalud buscarPorId(Long id) {
-        return em.find(centroSalud.class, id);
+    public CentroDeSalud buscarPorId(Long id) {
+        return em.find(CentroDeSalud.class, id);
     }
 
-    public List<centroSalud> listar() {
-        return em.createQuery("SELECT c FROM centroSalud c", centroSalud.class).getResultList();
+    public List<CentroDeSalud> listar() {
+        return em.createQuery("SELECT c FROM CentroDeSalud c", CentroDeSalud.class).getResultList();
     }
 
     public void eliminar(Long id) {
-        centroSalud centroSalud = buscarPorId(id);
+        CentroDeSalud centroSalud = buscarPorId(id);
         if (centroSalud != null) {
             em.remove(centroSalud);
         }
     }
 
-    public centroSalud actualizar(centroSalud centroSalud) {
+    public CentroDeSalud actualizar(CentroDeSalud centroSalud) {
         return em.merge(centroSalud);
     }
 }

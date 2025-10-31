@@ -1,6 +1,6 @@
 package Controller;
 
-import Class.centroSalud;
+import Entity.CentroDeSalud;
 import Service.ClinicaService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -18,21 +18,21 @@ public class ClinicaController {
     private ClinicaService clinicaService;
 
     @POST
-    public Response crearClinica(centroSalud centroSalud) {
+    public Response crearClinica(CentroDeSalud centroSalud) {
         clinicaService.crearClinica(centroSalud);
         return Response.status(Response.Status.CREATED).build();
     }
 
     @GET
     public Response listarClinicas() {
-        List<centroSalud> centroSaluds = clinicaService.listarClinicas();
+        List<CentroDeSalud> centroSaluds = clinicaService.listarClinicas();
         return Response.ok(centroSaluds).build();
     }
 
     @GET
     @Path("/{id}")
     public Response obtenerClinica(@PathParam("id") Long id) {
-        centroSalud centroSalud = clinicaService.obtenerClinica(id);
+        CentroDeSalud centroSalud = clinicaService.obtenerClinica(id);
         if (centroSalud != null) {
             return Response.ok(centroSalud).build();
         } else {
@@ -42,9 +42,9 @@ public class ClinicaController {
 
     @PUT
     @Path("/{id}")
-    public Response actualizarClinica(@PathParam("id") Long id, centroSalud centroSalud) {
+    public Response actualizarClinica(@PathParam("id") Long id, CentroDeSalud centroSalud) {
         centroSalud.setId(id);  // aseguramos que el ID sea el correcto
-        centroSalud actualizada = clinicaService.actualizarClinica(centroSalud);
+        CentroDeSalud actualizada = clinicaService.actualizarClinica(centroSalud);
         return Response.ok(actualizada).build();
     }
 

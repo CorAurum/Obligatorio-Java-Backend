@@ -1,10 +1,10 @@
 package Controller;
 
-import Class.Usuarios.usuarioDeSalud;
-import Class.documentoClinico;
-import Class.centroSalud;
-import Class.Usuarios.profesionalDeSalud;
-import Class.politicaDeAcceso;
+import Entity.Usuarios.UsuarioLocal;
+import Entity.DocumentoClinico;
+import Entity.CentroDeSalud;
+import Entity.Usuarios.profesionalDeSalud;
+import Entity.politicaDeAcceso;
 import Service.DocumentoClinicoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
@@ -15,7 +15,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Path("/documentoClinico")
@@ -53,7 +52,7 @@ public class DocumentoClinicoController {
     @Transactional
     public Response crearDocumento(DocumentoClinicoDTO req) {
         try {
-            documentoClinico nuevo = new documentoClinico();
+            DocumentoClinico nuevo = new DocumentoClinico();
             nuevo.setTitulo(req.titulo);
             nuevo.setTipoDocumento(req.tipoDocumento);
             nuevo.setContenido(req.contenido);
@@ -61,13 +60,13 @@ public class DocumentoClinicoController {
             nuevo.setFechaCreacion(LocalDateTime.now());
 
             if (req.centroSaludId != null)
-                nuevo.setCentroSalud(em.find(centroSalud.class, req.centroSaludId));
+                nuevo.setCentroSalud(em.find(CentroDeSalud.class, req.centroSaludId));
             if (req.profesionalDeSaludId != null)
                 nuevo.setProfesionalDeSalud(em.find(profesionalDeSalud.class, req.profesionalDeSaludId));
             if (req.politicaDeAccesoId != null)
                 nuevo.setPoliticaDeAcceso(em.find(politicaDeAcceso.class, req.politicaDeAccesoId));
             if (req.usuarioDeSaludId != null)
-                nuevo.setUsuarioDeSalud(em.find(usuarioDeSalud.class, req.usuarioDeSaludId));
+                nuevo.setUsuarioDeSalud(em.find(UsuarioLocal.class, req.usuarioDeSaludId));
 
             em.persist(nuevo);
             return Response.status(Response.Status.CREATED).entity(nuevo).build();
@@ -80,14 +79,14 @@ public class DocumentoClinicoController {
     }
 
     @GET
-    public List<documentoClinico> listarDocumentos() {
+    public List<DocumentoClinico> listarDocumentos() {
         return documentoClinicoService.listarDocumentos();
     }
 
     @GET
     @Path("/{id}")
     public Response obtenerPorId(@PathParam("id") Long idDocumento) {
-        documentoClinico doc = documentoClinicoService.obtenerPorId(idDocumento);
+        DocumentoClinico doc = documentoClinicoService.obtenerPorId(idDocumento);
         if (doc != null) {
             return Response.ok(doc).build();
         } else {
@@ -97,8 +96,8 @@ public class DocumentoClinicoController {
 
     @PUT
     @Path("/{id}")
-    public Response actualizarDocumento(@PathParam("id") Long idDocumento, documentoClinico documentoActualizado) {
-        documentoClinico actualizado = documentoClinicoService.actualizarDocumento(idDocumento, documentoActualizado);
+    public Response actualizarDocumento(@PathParam("id") Long idDocumento, DocumentoClinico documentoActualizado) {
+        DocumentoClinico actualizado = documentoClinicoService.actualizarDocumento(idDocumento, documentoActualizado);
         return Response.ok(actualizado).build();
     }
 
@@ -138,9 +137,9 @@ public class DocumentoClinicoController {
                         .entity("El campo 'idDocumento' es obligatorio.").build();
             }
 
-            documentoClinico existente = em.createQuery(
-                            "SELECT d FROM documentoClinico d WHERE d.idDocumentoOrigen = :idOrigen",
-                            documentoClinico.class)
+            DocumentoClinico existente = em.createQuery(
+                            "SELECT d FROM DocumentoClinico d WHERE d.idDocumentoOrigen = :idOrigen",
+                            DocumentoClinico.class)
                     .setParameter("idOrigen", req.idDocumento)
                     .getResultStream()
                     .findFirst()
@@ -148,7 +147,7 @@ public class DocumentoClinicoController {
 
             if (existente == null) {
                 System.out.println("🆕 Creando nuevo documento desde periférico...");
-                documentoClinico nuevo = new documentoClinico();
+                DocumentoClinico nuevo = new DocumentoClinico();
                 nuevo.setIdDocumentoOrigen(req.idDocumento);
                 nuevo.setArea(req.area);
                 nuevo.setEstado(true);
@@ -162,13 +161,13 @@ public class DocumentoClinicoController {
 
                 // Buscar clínica
                 if (req.idClinica != null) {
-                    centroSalud clinicaEntidad = em.find(centroSalud.class, req.idClinica);
+                    CentroDeSalud clinicaEntidad = em.find(CentroDeSalud.class, req.idClinica);
                     nuevo.setCentroSalud(clinicaEntidad);
                 }
 
                 // Buscar usuario por cédula
                 if (req.cedulaUsuario != null && !req.cedulaUsuario.isBlank()) {
-                    usuarioDeSalud usuario = em.find(usuarioDeSalud.class, req.cedulaUsuario);
+                    UsuarioLocal usuario = em.find(UsuarioLocal.class, req.cedulaUsuario);
                     nuevo.setUsuarioDeSalud(usuario);
                 }
 

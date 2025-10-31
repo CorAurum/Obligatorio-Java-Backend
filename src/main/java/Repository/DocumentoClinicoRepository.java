@@ -1,6 +1,6 @@
 package Repository;
 
-import Class.documentoClinico;
+import Entity.DocumentoClinico;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,25 +12,25 @@ public class DocumentoClinicoRepository {
     @PersistenceContext(unitName = "defaultPU")
     private EntityManager em;
 
-    public void guardar(documentoClinico documento) {
+    public void guardar(DocumentoClinico documento) {
         em.persist(documento);
     }
 
-    public documentoClinico actualizar(documentoClinico documento) {
+    public DocumentoClinico actualizar(DocumentoClinico documento) {
         return em.merge(documento);
     }
 
-    public documentoClinico buscarPorId(Long idDocumento) {
-        return em.find(documentoClinico.class, idDocumento);
+    public DocumentoClinico buscarPorId(Long idDocumento) {
+        return em.find(DocumentoClinico.class, idDocumento);
     }
 
-    public List<documentoClinico> listarTodos() {
-        return em.createQuery("SELECT d FROM documentoClinico d", documentoClinico.class)
+    public List<DocumentoClinico> listarTodos() {
+        return em.createQuery("SELECT d FROM DocumentoClinico d", DocumentoClinico.class)
                 .getResultList();
     }
 
     public void eliminar(Long idDocumento) {
-        documentoClinico documento = em.find(documentoClinico.class, idDocumento);
+        DocumentoClinico documento = em.find(DocumentoClinico.class, idDocumento);
         if (documento != null) {
             em.remove(documento);
         }

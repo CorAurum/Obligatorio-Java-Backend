@@ -1,9 +1,7 @@
 package Controller;
 
-import Class.Usuarios.usuarioDeSalud;
-import Class.pdi.pdiResponse;
+import Entity.Usuarios.UsuarioLocal;
 import Service.UsuarioDeSaludService;
-import Service.pdiService;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -48,11 +46,11 @@ public class UsuarioDeSaludController {
             }
 
             // Buscar usuario existente por cedulaIdentidad
-            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.cedulaIdentidad);
+            UsuarioLocal existente = em.find(UsuarioLocal.class, req.cedulaIdentidad);
 
             if (existente == null) {
                 // 🆕 Crear nuevo usuario
-                usuarioDeSalud nuevo = new usuarioDeSalud();
+                UsuarioLocal nuevo = new UsuarioLocal();
                 nuevo.setCi(req.cedulaIdentidad);
                 nuevo.setEmail(req.email);
                 nuevo.setNombre(req.nombre);
@@ -90,14 +88,14 @@ public class UsuarioDeSaludController {
     }
 
     @GET
-    public List<usuarioDeSalud> listarUsuarios() {
+    public List<UsuarioLocal> listarUsuarios() {
         return usuarioDeSaludService.listarUsuarios();
     }
 
     @GET
     @Path("/{cedula}")
     public Response obtenerPorCedula(@PathParam("cedula") String cedula) {
-        usuarioDeSalud usuario = usuarioDeSaludService.obtenerPorCedula(cedula);
+        UsuarioLocal usuario = usuarioDeSaludService.obtenerPorCedula(cedula);
         if (usuario != null) {
             return Response.ok(usuario).build();
         } else {
@@ -107,8 +105,8 @@ public class UsuarioDeSaludController {
 
     @PUT
     @Path("/{cedula}")
-    public Response actualizarUsuario(@PathParam("cedula") String cedula, usuarioDeSalud usuarioActualizado) {
-        usuarioDeSalud actualizado = usuarioDeSaludService.actualizarUsuario(cedula, usuarioActualizado);
+    public Response actualizarUsuario(@PathParam("cedula") String cedula, UsuarioLocal usuarioActualizado) {
+        UsuarioLocal actualizado = usuarioDeSaludService.actualizarUsuario(cedula, usuarioActualizado);
         return Response.ok(actualizado).build();
     }
 
@@ -136,11 +134,11 @@ public class UsuarioDeSaludController {
             System.out.println("DEBUG JSON recibido: " + req.fechaNacimiento);
 
             // Buscar usuario existente por cedulaIdentidad
-            usuarioDeSalud existente = em.find(usuarioDeSalud.class, req.cedulaIdentidad);
+            UsuarioLocal existente = em.find(UsuarioLocal.class, req.cedulaIdentidad);
 
             if (existente == null) {
                 // 🆕 Crear nuevo usuario
-                usuarioDeSalud nuevo = new usuarioDeSalud();
+                UsuarioLocal nuevo = new UsuarioLocal();
                 nuevo.setCi(req.cedulaIdentidad);
                 if (req.email != null && !req.email.isBlank()) nuevo.setEmail(req.email);
                 if (req.nombre != null && !req.nombre.isBlank()) nuevo.setNombre(req.nombre);
