@@ -5,6 +5,7 @@ import Entity.Usuarios.Administrador;
 import Entity.Usuarios.ProfesionalDeSalud;
 import Entity.Usuarios.UsuarioLocal;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -28,33 +29,34 @@ public class CentroDeSalud {
     private String tipoInstitucion;
     private String urlWebService;
 
-    @ElementCollection
-    @CollectionTable(name = "centro_especialidades", joinColumns = @JoinColumn(name = "centro_id"))
-    @Column(name = "especialidad")
-    private List<String> especialidades = new ArrayList<>();
+// REMOVI ESTA LISTA PORQUE NO TIENE SENTIDO A NIVEL LOGICO
+//    @ElementCollection
+//    @CollectionTable(name = "centro_especialidades", joinColumns = @JoinColumn(name = "centro_id"))
+//    @Column(name = "especialidad")
+//    private List<String> especialidades = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private EstadoCentro estado;
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("centro-profesionales")
+    @JsonIgnore
     private List<ProfesionalDeSalud> profesionales = new ArrayList<>();
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("centro-documentos")
+    @JsonIgnore
     private List<DocumentoClinico> documentosClinicos = new ArrayList<>();
 
     @OneToMany(mappedBy = "centroDeSalud", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("centro-politicas")
+    @JsonIgnore
     private List<PoliticaDeAcceso> politicas = new ArrayList<>();
 
     @OneToMany(mappedBy = "centroDeSalud", fetch = FetchType.LAZY)
-    @JsonManagedReference("centro-usuariosLocal")
+    @JsonIgnore
     private List<UsuarioLocal> usuariosLocal = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creado_por")
-    @JsonBackReference("admin-centros")
+    @JsonIgnore
     private Administrador creadoPor;
 
 
@@ -82,8 +84,8 @@ public class CentroDeSalud {
     public String getUrlWebService() { return urlWebService; }
     public void setUrlWebService(String urlWebService) { this.urlWebService = urlWebService; }
 
-    public List<String> getEspecialidades() { return especialidades; }
-    public void setEspecialidades(List<String> especialidades) { this.especialidades = especialidades; }
+//    public List<String> getEspecialidades() { return especialidades; }
+//    public void setEspecialidades(List<String> especialidades) { this.especialidades = especialidades; }
 
     public EstadoCentro getEstado() { return estado; }
     public void setEstado(EstadoCentro estado) { this.estado = estado; }

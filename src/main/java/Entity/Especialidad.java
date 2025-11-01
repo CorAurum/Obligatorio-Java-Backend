@@ -2,6 +2,7 @@ package Entity;
 
 import Entity.Usuarios.ProfesionalDeSalud;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -22,11 +23,11 @@ public class Especialidad {
     private String descripcion;
 
     @ManyToMany(mappedBy = "especialidades", fetch = FetchType.LAZY)
-    @JsonBackReference("profesional-especialidades")
+    @JsonIgnore
     private List<ProfesionalDeSalud> profesionales = new ArrayList<>();
 
     @ManyToMany(mappedBy = "especialidades", fetch = FetchType.LAZY)
-    @JsonBackReference("politica-especialidades")
+    @JsonIgnore
     private List<PoliticaDeAcceso> politicas = new ArrayList<>();
 
     public Especialidad() {}

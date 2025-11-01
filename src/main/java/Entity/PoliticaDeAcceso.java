@@ -3,6 +3,7 @@ package Entity;
 import Entity.Usuarios.Usuario;
 import Entity.Usuarios.UsuarioLocal;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -35,7 +36,7 @@ public class PoliticaDeAcceso {
     @JoinTable(name = "politica_especialidad",
             joinColumns = @JoinColumn(name = "politica_id"),
             inverseJoinColumns = @JoinColumn(name = "especialidad_id"))
-    @JsonManagedReference(value = "politica-especialidades")
+    @JsonIgnore
     private List<Especialidad> especialidades = new ArrayList<>();
 
     private LocalDateTime fechaCreacion;

@@ -16,9 +16,11 @@ public class ProfesionalDeSaludController {
     private ProfesionalDeSaludService profesionalDeSaludService;
 
     @POST
-    public Response registrarProfesional(ProfesionalDeSalud profesional, @QueryParam("centroId") String centroId) {
+    public Response registrarProfesional(ProfesionalDeSalud profesional,
+                                         @QueryParam("centroId") String centroId,
+                                         @QueryParam("adminId") Long adminId) {
         try {
-            ProfesionalDeSalud creado = profesionalDeSaludService.registrarProfesional(profesional, centroId);
+            ProfesionalDeSalud creado = profesionalDeSaludService.registrarProfesional(profesional, centroId, adminId);
             return Response.ok(creado).build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

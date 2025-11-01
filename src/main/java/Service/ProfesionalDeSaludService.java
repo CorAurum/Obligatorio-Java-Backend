@@ -1,7 +1,9 @@
 package Service;
 
 import Entity.CentroDeSalud;
+import Entity.Usuarios.Administrador;
 import Entity.Usuarios.ProfesionalDeSalud;
+import Repository.AdministradorRepository;
 import Repository.CentroDeSaludRepository;
 import Repository.ProfesionalDeSaludRepository;
 import jakarta.ejb.Stateless;
@@ -20,8 +22,12 @@ public class ProfesionalDeSaludService {
     @Inject
     private CentroDeSaludRepository centroDeSaludRepository;
 
-    public ProfesionalDeSalud registrarProfesional(ProfesionalDeSalud p, String centroId) {
+    @Inject
+    private AdministradorRepository administradorRepository;
+
+    public ProfesionalDeSalud registrarProfesional(ProfesionalDeSalud p, String centroId, Long adminId) {
         CentroDeSalud centro = centroDeSaludRepository.buscarPorId(centroId);
+        Administrador admin = administradorRepository.buscarPorId(adminId);
         if (centro == null)
             throw new IllegalArgumentException("Centro de salud no encontrado");
 
@@ -31,6 +37,7 @@ public class ProfesionalDeSaludService {
         p.setCentroDeSalud(centro);
         p.setFechaRegistroProfesional(LocalDate.now());
         p.setEstado(ProfesionalDeSalud.EstadoProfesional.ACTIVO);
+        p.setHabilitadoPor(admin);
 
         profesionalDeSaludRepository.crear(p);
         return p;

@@ -4,6 +4,7 @@ import Entity.Usuarios.ProfesionalDeSalud;
 import Entity.Usuarios.Usuario;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -48,7 +49,7 @@ public class DocumentoClinico {
     private Usuario usuario;
 
     @OneToMany(mappedBy = "documentoClinico", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("documento-accesos")
+    @JsonIgnore
     private List<AccesoLog> accesos = new ArrayList<>();
 
     public enum EstadoDocumento { ACTIVO, ARCHIVADO }

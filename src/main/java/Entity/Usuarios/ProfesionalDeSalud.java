@@ -5,6 +5,7 @@ import Entity.CentroDeSalud;
 import Entity.DocumentoClinico;
 import Entity.Especialidad;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -42,11 +43,11 @@ public class ProfesionalDeSalud {
     @JoinTable(name = "profesional_especialidad",
             joinColumns = @JoinColumn(name = "profesional_id"),
             inverseJoinColumns = @JoinColumn(name = "especialidad_id"))
-    @JsonManagedReference("profesional-especialidades")
+    @JsonIgnore
     private List<Especialidad> especialidades = new ArrayList<>();
 
     @OneToMany(mappedBy = "autorProfesional", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("profesional-documentos")
+    @JsonIgnore
     private List<DocumentoClinico> documentos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -91,4 +92,7 @@ public class ProfesionalDeSalud {
 
     public List<DocumentoClinico> getDocumentos() { return documentos; }
     public void setDocumentos(List<DocumentoClinico> documentos) { this.documentos = documentos; }
+
+    public Administrador getHabilitadoPor() {return habilitadoPor;}
+    public void setHabilitadoPor(Administrador habilitadoPor) {this.habilitadoPor = habilitadoPor;}
 }

@@ -1,5 +1,6 @@
 package Entity.Usuarios;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -37,27 +38,27 @@ public class Usuario {
 
     // Relations - bidirectional
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-identificadores")
+    @JsonIgnore
     private List<IdentificadorUsuario> identificadores = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-documentos")
+    @JsonIgnore
     private List<DocumentoClinico> documentosClinicos = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-politicas")
+    @JsonIgnore
     private List<PoliticaDeAcceso> politicasDeAcceso = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuarioDestino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-notificaciones")
+    @JsonIgnore
     private List<Notificacion> notificaciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-accesos")
+    @JsonIgnore
     private List<AccesoLog> accesos = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
-    @JsonManagedReference("usuario-usuariosLocal")
+    @JsonIgnore
     private List<UsuarioLocal> usuariosLocales = new ArrayList<>();
 
     // Enum for estado
