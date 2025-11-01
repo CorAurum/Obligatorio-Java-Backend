@@ -4,6 +4,7 @@ import Entity.Usuarios.UsuarioLocal;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
 
 @Stateless
 public class UsuarioLocalRepository {
@@ -15,7 +16,28 @@ public class UsuarioLocalRepository {
         em.persist(ul);
     }
 
-    public UsuarioLocal buscarPorIdLocal(String idLocal) {
-        return em.find(UsuarioLocal.class, idLocal);
+    public UsuarioLocal buscarPorCentroYIdLocal(String centroId, String idLocal) {
+        List<UsuarioLocal> res = em.createQuery(
+                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSaludId = :c AND u.idLocal = :id",
+                        UsuarioLocal.class)
+                .setParameter("c", centroId)
+                .setParameter("id", idLocal)
+                .getResultList();
+        return res.isEmpty() ? null : res.get(0);
+    }
+
+    public List<UsuarioLocal> listarPorCentro(String centroId) {
+        return em.createQuery(
+                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSaludId = :c",
+                        UsuarioLocal.class)
+                .setParameter("c", centroId)
+                .getResultList();
+    }
+
+    /**
+     * Actualiza los datos de un usuario local ya existente.
+     */
+    public UsuarioLocal actualizar(UsuarioLocal ul) {
+        return em.merge(ul);
     }
 }

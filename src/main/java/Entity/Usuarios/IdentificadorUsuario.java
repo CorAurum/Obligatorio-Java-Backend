@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import Entity.CentroDeSalud;
 
 /**
  * 2) IdentificadorUsuario
@@ -30,6 +31,10 @@ public class IdentificadorUsuario {
     @JoinColumn(name = "usuario_id")
     @JsonBackReference("usuario-identificadores")
     private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "centro_id_origen", nullable = true)
+    private CentroDeSalud centroOrigen;
 
     public IdentificadorUsuario() {}
 
@@ -54,4 +59,8 @@ public class IdentificadorUsuario {
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public CentroDeSalud getCentroOrigen() {return centroOrigen;}
+    public void setCentroOrigen(CentroDeSalud centroOrigen) {  this.centroOrigen = centroOrigen;}
+
 }

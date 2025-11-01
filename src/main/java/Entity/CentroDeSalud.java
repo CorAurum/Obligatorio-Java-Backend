@@ -2,6 +2,7 @@ package Entity;
 
 
 import Entity.Usuarios.Administrador;
+import Entity.Usuarios.IdentificadorUsuario;
 import Entity.Usuarios.ProfesionalDeSalud;
 import Entity.Usuarios.UsuarioLocal;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -53,6 +54,10 @@ public class CentroDeSalud {
     @OneToMany(mappedBy = "centroDeSalud", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<UsuarioLocal> usuariosLocal = new ArrayList<>();
+
+    @OneToMany(mappedBy = "centroOrigen", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<IdentificadorUsuario> identificadores_registrador_por_el_centro = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creado_por")

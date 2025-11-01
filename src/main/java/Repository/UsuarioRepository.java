@@ -1,6 +1,5 @@
 package Repository;
 
-
 import Entity.Usuarios.Usuario;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -31,5 +30,13 @@ public class UsuarioRepository {
 
     public List<Usuario> listarTodos() {
         return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
+    }
+
+    /**
+     * Actualiza el estado de un usuario existente.
+     * Si el entity está detached, se mergea nuevamente en el contexto de persistencia.
+     */
+    public Usuario actualizar(Usuario usuario) {
+        return em.merge(usuario);
     }
 }
