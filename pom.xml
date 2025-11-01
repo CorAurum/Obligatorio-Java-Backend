@@ -95,6 +95,18 @@
       <version>0.4</version>
     </dependency>
 
+    <!-- Swagger/OpenAPI Dependencies -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-jaxrs2-jakarta</artifactId>
+      <version>2.2.20</version>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
+      <version>2.2.20</version>
+    </dependency>
+
 
   </dependencies>
 

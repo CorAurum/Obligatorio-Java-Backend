@@ -1,6 +1,13 @@
 package Controller;
 
 import Annotation.Secured;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -17,6 +24,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 @Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Autenticación", description = "Endpoints para validación de tokens JWT (autenticación externa con gub.uy)")
 public class AuthController {
 
     /**
@@ -29,6 +37,38 @@ public class AuthController {
     @GET
     @Path("/validate")
     @Secured
+    @Operation(
+        summary = "Validar token JWT",
+        description = "Valida un token JWT y retorna la información del usuario autenticado. " +
+                      "El token debe ser obtenido previamente mediante autenticación con gub.uy.",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Token válido - Retorna información del usuario",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = UserInfoResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Token inválido, expirado o no proporcionado",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Error interno del servidor",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
     public Response validateToken(@Context ContainerRequestContext requestContext) {
         try {
             // El usuario ya fue validado por el JwtAuthenticationFilter
@@ -56,8 +96,12 @@ public class AuthController {
     }
 
     // Inner classes for responses
+    @Schema(description = "Respuesta de error")
     public static class ErrorResponse {
+        @Schema(description = "Mensaje de error", example = "Invalid or expired token")
         private String error;
+
+        @Schema(description = "Timestamp del error", example = "1705328400000")
         private long timestamp;
 
         public ErrorResponse(String error) {
@@ -82,9 +126,15 @@ public class AuthController {
         }
     }
 
+    @Schema(description = "Información del usuario autenticado")
     public static class UserInfoResponse {
+        @Schema(description = "ID del usuario", example = "123")
         private Long userId;
+
+        @Schema(description = "Nombre de usuario", example = "juan.perez")
         private String username;
+
+        @Schema(description = "Rol del usuario", example = "USUARIO", allowableValues = {"ADMIN", "PROFESIONAL", "USUARIO", "SISTEMA"})
         private String role;
 
         public UserInfoResponse(Long userId, String username, String role) {
