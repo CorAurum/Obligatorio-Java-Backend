@@ -26,11 +26,6 @@ public class UsuarioService {
     @Inject private UsuarioLocalRepository usuarioLocalRepository;
     @Inject private CentroDeSaludRepository centroDeSaludRepository;
 
-
-
-
-
-
     public Usuario buscarPorId(String id) {
         return usuarioRepository.buscarPorId(id);
     }

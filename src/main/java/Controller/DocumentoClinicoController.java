@@ -1,5 +1,6 @@
 package Controller;
 
+import Entity.DTO.DocumentoClinicoDTO;
 import Entity.DTO.DocumentoClinicoPayload;
 import Entity.DocumentoClinico;
 import Service.DocumentoClinicoService;
@@ -45,6 +46,17 @@ public class DocumentoClinicoController {
         List<DocumentoClinico> docs = documentoClinicoService.listarPorUsuario(usuarioId);
         return Response.ok(docs).build();
     }
+
+    // GET de DTO para usuario (Golden)
+
+    @GET
+    @Path("/usuarioDTO/{usuarioId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarPorUsuarioDTO(@PathParam("usuarioId") String usuarioId) {
+        List<DocumentoClinicoDTO> docs = documentoClinicoService.listarPorUsuarioDTO(usuarioId);
+        return Response.ok(docs).build();
+    }
+
 
     // 🔹 GET todos
     @GET

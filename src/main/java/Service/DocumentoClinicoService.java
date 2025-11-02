@@ -1,6 +1,7 @@
 package Service;
 
 import Entity.CentroDeSalud;
+import Entity.DTO.DocumentoClinicoDTO;
 import Entity.DocumentoClinico;
 import Entity.DTO.DocumentoClinicoPayload;
 import Entity.Usuarios.ProfesionalDeSalud;
@@ -12,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Stateless
@@ -111,6 +113,20 @@ public class DocumentoClinicoService {
 
     public java.util.List<DocumentoClinico> listarPorUsuario(String usuarioId) {
         return documentoClinicoRepository.listarPorUsuario(usuarioId);
+    }
+
+    public List<DocumentoClinicoDTO> listarPorUsuarioDTO(String usuarioId) {
+        List<DocumentoClinico> docs = documentoClinicoRepository.listarPorUsuario(usuarioId);
+        return docs.stream()
+                .map(d -> new DocumentoClinicoDTO(
+                        d.getFechaCreacion(),
+                        d.getArea(),
+                        d.getDescripcion(),
+                        d.getUrlAlojamiento(),
+                        d.getAutorProfesional() != null ? d.getAutorProfesional().getNombres() : null,
+                        d.getAutorProfesional() != null ? d.getAutorProfesional().getApellidos() : null
+                ))
+                .toList();
     }
 
     public java.util.List<DocumentoClinico> listarTodos() {
