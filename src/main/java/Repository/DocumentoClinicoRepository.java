@@ -12,27 +12,34 @@ public class DocumentoClinicoRepository {
     @PersistenceContext(unitName = "defaultPU")
     private EntityManager em;
 
-    public void guardar(DocumentoClinico documento) {
-        em.persist(documento);
+    public void crear(DocumentoClinico doc) {
+        em.persist(doc);
     }
 
-    public DocumentoClinico actualizar(DocumentoClinico documento) {
-        return em.merge(documento);
+    public DocumentoClinico buscarPorId(String id) {
+        return em.find(DocumentoClinico.class, id);
     }
 
-    public DocumentoClinico buscarPorId(Long idDocumento) {
-        return em.find(DocumentoClinico.class, idDocumento);
+    public DocumentoClinico buscarPorIdOrigenYCentro(String idOrigen, String centroId) {
+        List<DocumentoClinico> res = em.createQuery(
+                        "SELECT d FROM DocumentoClinico d WHERE d.idOrigen = :idOrigen AND d.centroDeSalud.id = :centroId",
+                        DocumentoClinico.class)
+                .setParameter("idOrigen", idOrigen)
+                .setParameter("centroId", centroId)
+                .getResultList();
+        return res.isEmpty() ? null : res.get(0);
+    }
+
+    public List<DocumentoClinico> listarPorUsuario(String usuarioId) {
+        return em.createQuery(
+                        "SELECT d FROM DocumentoClinico d WHERE d.usuario.id = :usuarioId ORDER BY d.fechaCreacion DESC",
+                        DocumentoClinico.class)
+                .setParameter("usuarioId", usuarioId)
+                .getResultList();
     }
 
     public List<DocumentoClinico> listarTodos() {
         return em.createQuery("SELECT d FROM DocumentoClinico d", DocumentoClinico.class)
                 .getResultList();
-    }
-
-    public void eliminar(Long idDocumento) {
-        DocumentoClinico documento = em.find(DocumentoClinico.class, idDocumento);
-        if (documento != null) {
-            em.remove(documento);
-        }
     }
 }

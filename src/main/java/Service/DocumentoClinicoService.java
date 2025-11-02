@@ -1,52 +1,119 @@
-//package Service;
-//
-//import Entity.DocumentoClinico;
-//import Repository.DocumentoClinicoRepository;
-//import jakarta.ejb.Stateless;
-//import jakarta.inject.Inject;
-//import java.time.LocalDateTime;
-//import java.util.List;
-//
-//@Stateless
-//public class DocumentoClinicoService {
-//
-//    @Inject
-//    private DocumentoClinicoRepository repository;
-//
-//    public void crearDocumento(DocumentoClinico documento) {
-//        documento.setFechaCreacion(LocalDateTime.now());
-//        repository.guardar(documento);
-//    }
-//
-//    public DocumentoClinico obtenerPorId(Long idDocumento) {
-//        return repository.buscarPorId(idDocumento);
-//    }
-//
-//    public List<DocumentoClinico> listarDocumentos() {
-//        return repository.listarTodos();
-//    }
-//
-//    public DocumentoClinico actualizarDocumento(Long idDocumento, DocumentoClinico documentoNuevo) {
-//        DocumentoClinico existente = repository.buscarPorId(idDocumento);
-//        if (existente != null) {
-//            existente.setTitulo(documentoNuevo.getTitulo());
-//            existente.setTipoDocumento(documentoNuevo.getTipoDocumento());
-//            existente.setContenido(documentoNuevo.getContenido());
-//            existente.setEstado(documentoNuevo.isEstado());
-//            existente.setCentroSalud(documentoNuevo.getCentroSalud());
-//            existente.setProfesionalDeSalud(documentoNuevo.getProfesionalDeSalud());
-//            existente.setPoliticaDeAcceso(documentoNuevo.getPoliticaDeAcceso());
-//            existente.setUsuarioDeSalud(documentoNuevo.getUsuarioDeSalud());
-//            return repository.actualizar(existente);
-//        } else {
-//            documentoNuevo.setIdDocumentoCentral(idDocumento);
-//            documentoNuevo.setFechaCreacion(LocalDateTime.now());
-//            repository.guardar(documentoNuevo);
-//            return documentoNuevo;
-//        }
-//    }
-//
-//    public void eliminarDocumento(Long idDocumento) {
-//        repository.eliminar(idDocumento);
-//    }
-//}
+package Service;
+
+import Entity.CentroDeSalud;
+import Entity.DocumentoClinico;
+import Entity.DTO.DocumentoClinicoPayload;
+import Entity.Usuarios.ProfesionalDeSalud;
+import Entity.Usuarios.Usuario;
+import Entity.Usuarios.UsuarioLocal;
+import Repository.*;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Stateless
+@Transactional
+public class DocumentoClinicoService {
+
+    @Inject private DocumentoClinicoRepository documentoClinicoRepository;
+    @Inject private CentroDeSaludRepository centroDeSaludRepository;
+    @Inject private UsuarioLocalRepository usuarioLocalRepository;
+    @Inject private UsuarioRepository usuarioRepository;
+    @Inject private ProfesionalDeSaludRepository profesionalDeSaludRepository;
+
+    public static class ResultadoRegistro {
+        public boolean success;
+        public String message;
+        public String documentoId;
+        public String usuarioIdGolden;
+    }
+
+    public ResultadoRegistro registrarDesdePeriferico(DocumentoClinicoPayload dto) {
+        ResultadoRegistro out = new ResultadoRegistro();
+
+        // 🔹 Validaciones básicas
+        if (dto.centroId == null || dto.profesionalId == null || dto.usuarioLocalId == null) {
+            out.success = false;
+            out.message = "centroId, profesionalId y usuarioLocalId son obligatorios.";
+            return out;
+        }
+
+        // 🔹 Verificar duplicado
+        DocumentoClinico existente = documentoClinicoRepository.buscarPorIdOrigenYCentro(dto.idOrigen, dto.centroId);
+        if (existente != null) {
+            out.success = false;
+            out.message = "Documento ya registrado con idOrigen " + dto.idOrigen;
+            return out;
+        }
+
+        // 🔹 Buscar centro
+        CentroDeSalud centro = centroDeSaludRepository.buscarPorId(dto.centroId);
+        if (centro == null) {
+            out.success = false;
+            out.message = "Centro de salud no encontrado: " + dto.centroId;
+            return out;
+        }
+
+        // Buscar ProfesionalDeSalud
+        ProfesionalDeSalud Profesional = profesionalDeSaludRepository.buscarPorId(dto.profesionalId);
+        if (Profesional == null) {
+            out.success = false;
+            out.message = "Profesional de salud no encontrado: " + dto.profesionalId;
+            return out;
+        }
+
+        // 🔹 Resolver usuario desde UsuarioLocal
+        UsuarioLocal usuarioLocal = usuarioLocalRepository.buscarPorCentroYIdLocal(dto.centroId, dto.usuarioLocalId);
+        if (usuarioLocal == null) {
+            out.success = false;
+            out.message = "No se encontró un UsuarioLocal con idLocal " + dto.usuarioLocalId +
+                    " en el centro " + dto.centroId;
+            return out;
+        }
+
+        Usuario usuarioGolden = usuarioRepository.buscarPorId(usuarioLocal.getUsuarioId());
+        if (usuarioGolden == null) {
+            out.success = false;
+            out.message = "El UsuarioLocal no tiene un usuario Golden asociado.";
+            return out;
+        }
+
+        // 🔹 Crear documento
+        DocumentoClinico doc = new DocumentoClinico();
+        doc.setId(UUID.randomUUID().toString());
+        doc.setIdOrigen(dto.idOrigen);
+        doc.setCentroDeSalud(centro);
+        doc.setUsuario(usuarioGolden);
+        doc.setFechaCreacion(dto.fechaCreacion != null ? dto.fechaCreacion : LocalDateTime.now());
+        doc.setEstado(DocumentoClinico.EstadoDocumento.ACTIVO);
+        doc.setTitulo(dto.titulo);
+        doc.setDescripcion(dto.descripcion);
+        doc.setTipoDocumento(dto.tipoDocumento);
+        doc.setAutorProfesional(Profesional);
+        doc.setArea(dto.area);
+        doc.setUrlAlojamiento(dto.urlAlojamiento);
+
+        documentoClinicoRepository.crear(doc);
+
+        out.success = true;
+        out.documentoId = doc.getId();
+        out.usuarioIdGolden = usuarioGolden.getId();
+        out.message = "Documento registrado correctamente.";
+        return out;
+    }
+
+    public DocumentoClinico buscarPorId(String id) {
+        return documentoClinicoRepository.buscarPorId(id);
+    }
+
+    public java.util.List<DocumentoClinico> listarPorUsuario(String usuarioId) {
+        return documentoClinicoRepository.listarPorUsuario(usuarioId);
+    }
+
+    public java.util.List<DocumentoClinico> listarTodos() {
+        return documentoClinicoRepository.listarTodos();
+    }
+}

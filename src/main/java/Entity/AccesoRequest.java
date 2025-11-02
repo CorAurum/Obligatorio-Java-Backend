@@ -1,5 +1,6 @@
 package Entity;
 
+import Entity.Usuarios.ProfesionalDeSalud;
 import Entity.Usuarios.Usuario;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -24,10 +25,16 @@ public class AccesoRequest {
     @JsonBackReference("usuario-requests")
     private Usuario usuario;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "documento_id")
     @JsonBackReference("documento-requests")
     private DocumentoClinico documentoClinico;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profesional_id")
+    @JsonBackReference("profesional-requests")
+    private ProfesionalDeSalud profesionalSolicitante;
 
     private LocalDateTime fechaSolicitud;
 

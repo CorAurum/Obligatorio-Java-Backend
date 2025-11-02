@@ -30,6 +30,11 @@ public class AccesoLog {
     @JsonBackReference("usuario-accesos")
     private Usuario usuario;
 
+    // Registra que politica autorizo un acceso
+    @Column(name = "politica_aplicada_id")
+    private String politicaAplicadaId;
+
+
     private LocalDateTime fechaAcceso;
     private Boolean resultado;
     private String motivo;

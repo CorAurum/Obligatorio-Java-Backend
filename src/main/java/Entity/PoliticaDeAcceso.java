@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 10) PoliticaDeAcceso
  */
@@ -39,6 +41,11 @@ public class PoliticaDeAcceso {
     @JsonIgnore
     private List<Especialidad> especialidades = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creado_por_usuario_id")
+    @JsonIgnore
+    private Usuario creadoPor; // Puede ser el mismo paciente o un representante
+
     private LocalDateTime fechaCreacion;
     private LocalDate vigenciaHasta;
 
@@ -46,6 +53,18 @@ public class PoliticaDeAcceso {
     private EstadoPolitica estado;
 
     public enum EstadoPolitica { ACTIVA, REVOCADA }
+
+    // NOS DA UN RESUMEN DE LA POLITICA Y SUS DETALLES PARA LEERLA MAS FACILMENTE
+    @Transient
+    public String getResumen() {
+        String especialidadesResumen = especialidades.stream()
+                .map(Especialidad::getNombre)
+                .collect(Collectors.joining(", ")); // Une los nombres de las especialidades con una coma
+
+        return String.format("Permite acceso al %s para especialidades: %s",
+                centroDeSalud.getNombre(),
+                especialidadesResumen);
+    }
 
     public PoliticaDeAcceso() {}
 
