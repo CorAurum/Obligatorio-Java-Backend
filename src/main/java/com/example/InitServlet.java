@@ -7,7 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import Class.centroSalud;
+import Entity.CentroDeSalud;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ public class InitServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        centroSalud c = new centroSalud();
+        CentroDeSalud c = new CentroDeSalud();
         c.setNombre("Clinica Central");
         c.setDireccion("Av. Siempre Viva 123");
         c.setTelefono("123456");

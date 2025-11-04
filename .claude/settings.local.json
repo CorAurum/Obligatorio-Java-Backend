@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(nul)",
+      "Bash(dir /S /B \"c:\\Users\\ignac\\OneDrive\\Escritorio\\java back\\Obligatorio-Java-Backend\\src\\main\\java\\*.java\")",
+      "Bash(dir nul)",
+      "Bash(del nul)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
