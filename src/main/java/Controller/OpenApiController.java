@@ -44,7 +44,7 @@ public class OpenApiController {
                 "    <script>\n" +
                 "        window.onload = function() {\n" +
                 "            const ui = SwaggerUIBundle({\n" +
-                "                url: window.location.origin + '/api/openapi.json',\n" +
+                "                url: window.location.pathname.replace('/swagger', '/openapi.json'),\n" +
                 "                dom_id: '#swagger-ui',\n" +
                 "                deepLinking: true,\n" +
                 "                presets: [\n" +
