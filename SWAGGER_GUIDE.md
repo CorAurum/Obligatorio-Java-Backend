@@ -77,15 +77,67 @@ Si ya tienes integración con gub.uy en tu frontend, usa el token que generas ah
 2. Haz clic en él
 3. Se abrirá un modal con el campo **"bearerAuth"**
 4. En el campo **Value**, escribe:
+
    ```
    Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
+
    (Nota: Incluye la palabra "Bearer" seguida de un espacio y luego tu token)
 
 5. Haz clic en **"Authorize"**
 6. Haz clic en **"Close"**
 
 ✅ ¡Listo! Ahora todos tus endpoints protegidos con `@Secured` se ejecutarán con este token.
+
+---
+
+## 🔗 Auth Callback Endpoints
+
+### Deben estar autorizados por la AGESIC:
+
+- https://dominio.com/api/auth/callback/web
+
+- https://dominio.com/api/auth/callback/mobile
+
+### Configuración de Variables de Entorno
+
+Los endpoints de callback requieren configuración de variables de entorno:
+
+```bash
+# URI de callback para web clients
+WEB_AUTH_CALLBACK=https://tu-web-app.com/auth/callback
+
+# URI de callback para mobile clients
+MOBILE_AUTH_CALLBACK=tu-app://auth/callback
+```
+
+### Uso de los Callbacks
+
+Los endpoints `/api/auth/callback/web` y `/api/auth/callback/mobile` se usan para redirigir usuarios después de la autenticación externa (gub.uy):
+
+1. **Validan el token JWT** enviado como parámetro de consulta
+2. **Redirigen al cliente correspondiente** con el token incluido
+3. **Manejan errores** si el token es inválido o faltan configuraciones
+
+#### Ejemplo de Uso
+
+```bash
+# Web callback
+GET /api/auth/callback/web?token=eyJhbGciOiJIUzI1NiIs...
+
+# Mobile callback
+GET /api/auth/callback/mobile?token=eyJhbGciOiJIUzI1NiIs...
+```
+
+#### Flujo Típico
+
+```
+1. Usuario inicia sesión en gub.uy
+2. gub.uy redirige a /auth/callback/web o /auth/callback/mobile
+3. Backend valida el token JWT
+4. Backend redirige al cliente web/mobile con el token
+5. Cliente web/mobile recibe el token y establece la sesión
+```
 
 ---
 
@@ -98,6 +150,8 @@ En la página principal verás todos los controladores agrupados por tags:
 ```
 🔵 Autenticación
    GET /api/auth/validate - Validar token JWT
+   GET /api/auth/callback/web - Callback para autenticación web
+   GET /api/auth/callback/mobile - Callback para autenticación mobile
 
 🔵 Administradores
    POST   /api/administradores     - Crear administrador
@@ -431,6 +485,7 @@ Cuando crees un nuevo endpoint, asegúrate de:
 **Problema**: Al ir a `/api/swagger` no carga nada
 
 **Solución**:
+
 1. Verifica que el servidor esté corriendo
 2. Revisa logs del servidor por errores
 3. Asegúrate de que las dependencias de Swagger estén en `pom.xml`
@@ -441,6 +496,7 @@ Cuando crees un nuevo endpoint, asegúrate de:
 **Problema**: Swagger UI carga pero no muestra mis controladores
 
 **Solución**:
+
 1. Asegúrate de que tus controladores tengan `@Path`
 2. Verifica que estén en el package `Controller`
 3. Agrega `@Tag` a tus controladores para que aparezcan
@@ -451,6 +507,7 @@ Cuando crees un nuevo endpoint, asegúrate de:
 **Problema**: Todos los endpoints con `@Secured` fallan con 401
 
 **Solución**:
+
 1. Haz clic en "Authorize" y configura el token
 2. Verifica que el token sea válido (no expirado)
 3. Asegúrate de incluir "Bearer " antes del token
@@ -461,6 +518,7 @@ Cuando crees un nuevo endpoint, asegúrate de:
 **Problema**: Errores de CORS al ejecutar requests
 
 **Solución**:
+
 1. Configura CORS en tu backend
 2. Si estás usando un proxy, configúralo correctamente
 3. En desarrollo, puedes desactivar CORS temporalmente
@@ -529,12 +587,12 @@ Cuando crees un nuevo endpoint, asegúrate de:
 
 ## ✅ Resumen Rápido
 
-| Acción | URL/Comando |
-|--------|-------------|
-| Ver Swagger UI | `http://localhost:8080/api/swagger` |
-| Ver OpenAPI JSON | `http://localhost:8080/api/openapi.json` |
-| Autenticarse | Click "Authorize" → `Bearer {token}` |
-| Probar endpoint | Click "Try it out" → "Execute" |
-| Generar token de prueba | https://jwt.io/ |
+| Acción                  | URL/Comando                              |
+| ----------------------- | ---------------------------------------- |
+| Ver Swagger UI          | `http://localhost:8080/api/swagger`      |
+| Ver OpenAPI JSON        | `http://localhost:8080/api/openapi.json` |
+| Autenticarse            | Click "Authorize" → `Bearer {token}`     |
+| Probar endpoint         | Click "Try it out" → "Execute"           |
+| Generar token de prueba | https://jwt.io/                          |
 
 ¡Listo! Ahora tienes toda la información para usar Swagger en tu proyecto. 🚀
