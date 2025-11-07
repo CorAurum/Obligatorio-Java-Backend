@@ -1,8 +1,17 @@
 package Controller;
 
+import Entity.DTO.DocumentoClinicoDTO;
 import Entity.DTO.PoliticaDeAccesoDTO;
+import Entity.Especialidad;
 import Entity.PoliticaDeAcceso;
+import Entity.Usuarios.ProfesionalDeSalud;
+import Entity.Usuarios.Usuario;
+import Repository.DocumentoClinicoRepository;
 import Repository.PoliticaDeAccesoRepository;
+import Repository.ProfesionalDeSaludRepository;
+import Repository.UsuarioRepository;
+import Service.AccesoLogService;
+import Service.DocumentoClinicoService;
 import Service.PoliticaDeAccesoService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -23,6 +32,14 @@ public class PoliticaDeAccesoController {
 
     @Inject
     private PoliticaDeAccesoRepository politicaDeAccesoRepository;
+    @Inject
+    private ProfesionalDeSaludRepository profesionalDeSaludRepository;
+    @Inject
+    private UsuarioRepository usuarioRepository;
+    @Inject
+    private DocumentoClinicoService documentoClinicoService;
+    @Inject
+    private AccesoLogService accesoLogService;
 
     // Crear nueva política
     @POST
@@ -93,6 +110,7 @@ public class PoliticaDeAccesoController {
         }
     }
 
+    /* VER SI ES REALMENTE NECESARIA
     // Verificar acceso (para profesionales)
     @GET
     @Path("/verificar")
@@ -105,6 +123,30 @@ public class PoliticaDeAccesoController {
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
+    } */
+
+    @GET
+    @Path("/historiaClinica")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response obtenerHistoria(@QueryParam("profesionalId") String profesionalId,
+                                    @QueryParam("usuarioId") String usuarioId) {
+        boolean permitido = politicaService.puedeAcceder(profesionalId, usuarioId);
+
+        // Registrar intento en AccesoLog
+        accesoLogService.registrarIntento(profesionalId, usuarioId, permitido);
+
+        if (!permitido) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity("Acceso denegado: el profesional no tiene permisos para este usuario.")
+                    .build();
+        }
+
+        // Si está permitido, devolver los documentos
+        List<DocumentoClinicoDTO> docs = documentoClinicoService.listarPorUsuarioDTO(usuarioId);
+        return Response.ok(docs).build();
     }
+
+
+
 }
 

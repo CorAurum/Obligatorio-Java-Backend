@@ -3,11 +3,9 @@ package Service;
 import Entity.CentroDeSalud;
 import Entity.Especialidad;
 import Entity.PoliticaDeAcceso;
+import Entity.Usuarios.ProfesionalDeSalud;
 import Entity.Usuarios.Usuario;
-import Repository.CentroDeSaludRepository;
-import Repository.EspecialidadRepository;
-import Repository.PoliticaDeAccesoRepository;
-import Repository.UsuarioRepository;
+import Repository.*;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,6 +23,7 @@ public class PoliticaDeAccesoService {
     @Inject private UsuarioRepository usuarioRepository;
     @Inject private CentroDeSaludRepository centroRepository;
     @Inject private EspecialidadRepository especialidadRepository;
+    @Inject private ProfesionalDeSaludRepository profesionalDeSaludRepository;
 
     // Crear nueva política de acceso
     public PoliticaDeAcceso crearPolitica(String usuarioId, String centroId, List<String> especialidadesIds, LocalDate vigenciaHasta) {
@@ -65,8 +64,42 @@ public class PoliticaDeAccesoService {
         return politicaRepository.buscarPorUsuario(usuarioId);
     }
 
+    /* VERIFICAR SI ES NECESARIO
     // Verificar acceso de un profesional
     public boolean verificarAcceso(String usuarioId, String centroId, String especialidadId) {
         return politicaRepository.existeActiva(usuarioId, centroId, especialidadId);
+    } */
+
+
+    // METODO PARA EVALUAR SI UN PROFESIONAL DE SALUD PUEDE ACCEDER A LA HISTORIA DE UN PACIENTE X
+    // CONTROLA CENTRO DE SALUD AL QUE PERTENECE EL PROFESIONAL Y LAS ESPECIALIDADES QUE EL USUARIO
+    // AUTORIZO DENTRO DE DICHO CENTRO.
+    public boolean puedeAcceder(String profesionalId, String usuarioId) {
+        ProfesionalDeSalud prof = profesionalDeSaludRepository.buscarPorId(profesionalId);
+        if (prof == null) throw new IllegalArgumentException("Profesional no encontrado");
+
+        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado");
+
+        // Obtener políticas activas del usuario
+        List<PoliticaDeAcceso> politicas = politicaRepository.listarPorUsuario(usuarioId);
+
+        for (PoliticaDeAcceso p : politicas) {
+            if (p.getEstado() == PoliticaDeAcceso.EstadoPolitica.ACTIVA
+                    && p.getCentroDeSalud().getId().equals(prof.getCentroDeSalud().getId())) {
+
+                // Comparar especialidades del profesional con las habilitadas en la política
+                for (Especialidad espProf : prof.getEspecialidades()) {
+                    for (Especialidad espPol : p.getEspecialidades()) {
+                        if (espProf.getId().equals(espPol.getId())) {
+                            return true; // ✅ acceso permitido
+                        }
+                    }
+                }
+            }
+        }
+
+        return false; // 🚫 acceso denegado
     }
+
 }

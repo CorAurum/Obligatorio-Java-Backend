@@ -38,4 +38,17 @@ public class IdentificadorUsuarioRepository {
                 .getResultList();
         return res.isEmpty() ? null : res.get(0);
     }
+
+
+    public List<IdentificadorUsuario> buscarTodosPorTipoYValor(String tipo, String valor) {
+        return em.createQuery(
+                        "SELECT i FROM IdentificadorUsuario i WHERE i.tipo = :tipo AND i.valor = :valor",
+                        IdentificadorUsuario.class)
+                .setParameter("tipo", tipo)
+                .setParameter("valor", valor)
+                .getResultList();
+    }
+
+
 }
+
