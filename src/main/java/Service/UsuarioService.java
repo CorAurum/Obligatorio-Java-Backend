@@ -30,6 +30,10 @@ public class UsuarioService {
         return usuarioRepository.buscarPorId(id);
     }
 
+    public List<Usuario> listarUsuarios() {
+        return usuarioRepository.listarTodos();
+    }
+
 ////  METODO DE SINCRONIZACION  DE USUARIOS DESDE PERIFERICO, CREACION DE USUARIOS LOCALES, IDENTIFICADORES Y USUARIO GOLDEN RECORD
 
     public static class ResultadoSync {

@@ -33,8 +33,8 @@ public class ProfesionalDeSaludRepository {
         return em.createQuery("SELECT p FROM ProfesionalDeSalud p", ProfesionalDeSalud.class).getResultList();
     }
 
-    public void actualizar(ProfesionalDeSalud profesional) {
-        em.merge(profesional);
+    public ProfesionalDeSalud actualizar(ProfesionalDeSalud profesional) {
+        return em.merge(profesional);
     }
 
     public void eliminar(String id) {

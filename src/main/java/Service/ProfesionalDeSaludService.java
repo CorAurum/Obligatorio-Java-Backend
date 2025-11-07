@@ -42,4 +42,28 @@ public class ProfesionalDeSaludService {
         profesionalDeSaludRepository.crear(p);
         return p;
     }
+
+    public java.util.List<ProfesionalDeSalud> listarProfesionales() {
+        return profesionalDeSaludRepository.listarTodos();
+    }
+
+    public ProfesionalDeSalud obtenerPorId(String id) {
+        return profesionalDeSaludRepository.buscarPorId(id);
+    }
+
+    public ProfesionalDeSalud actualizarProfesional(String id, ProfesionalDeSalud profesional) {
+        ProfesionalDeSalud existente = profesionalDeSaludRepository.buscarPorId(id);
+        if (existente == null) {
+            throw new IllegalArgumentException("Profesional no encontrado");
+        }
+
+        if (profesional.getNombres() != null) existente.setNombres(profesional.getNombres());
+        if (profesional.getApellidos() != null) existente.setApellidos(profesional.getApellidos());
+        if (profesional.getEmail() != null) existente.setEmail(profesional.getEmail());
+        if (profesional.getTelefono() != null) existente.setTelefono(profesional.getTelefono());
+        if (profesional.getNumeroRegistro() != null) existente.setNumeroRegistro(profesional.getNumeroRegistro());
+        if (profesional.getEstado() != null) existente.setEstado(profesional.getEstado());
+
+        return profesionalDeSaludRepository.actualizar(existente);
+    }
 }
