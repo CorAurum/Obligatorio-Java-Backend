@@ -22,6 +22,7 @@ public class Administrador {
     private String apellido;
     private String email;
     private String telefono;
+    private String cedula;
     private LocalDateTime fechaAlta;
     private Boolean activo;
 
@@ -51,6 +52,9 @@ public class Administrador {
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getCedula() { return cedula; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
 
     public LocalDateTime getFechaAlta() { return fechaAlta; }
     public void setFechaAlta(LocalDateTime fechaAlta) { this.fechaAlta = fechaAlta; }

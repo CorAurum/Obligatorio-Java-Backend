@@ -33,4 +33,13 @@ public class AdministradorRepository {
         Administrador a = em.find(Administrador.class, id);
         if (a != null) em.remove(a);
     }
+
+    public Administrador buscarPorCedula(String cedula) {
+        List<Administrador> resultado = em.createQuery(
+                "SELECT a FROM Administrador a WHERE a.cedula = :cedula AND a.activo = true",
+                Administrador.class)
+            .setParameter("cedula", cedula)
+            .getResultList();
+        return resultado.isEmpty() ? null : resultado.get(0);
+    }
 }

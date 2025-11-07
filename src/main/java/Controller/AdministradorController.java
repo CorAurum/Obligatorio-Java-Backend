@@ -77,4 +77,23 @@ public class AdministradorController {
                     .build();
         }
     }
+
+    // GET /administradores/cedula/{cedula}
+    @GET
+    @Path("/cedula/{cedula}")
+    public Response obtenerPorCedula(@PathParam("cedula") String cedula) {
+        try {
+            Administrador admin = administradorService.obtenerPorCedula(cedula);
+            if (admin == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontró administrador con cédula " + cedula)
+                        .build();
+            }
+            return Response.ok(admin).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al buscar administrador: " + e.getMessage())
+                    .build();
+        }
+    }
 }
