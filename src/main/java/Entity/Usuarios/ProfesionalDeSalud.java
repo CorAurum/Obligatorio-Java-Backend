@@ -48,7 +48,7 @@ public class ProfesionalDeSalud {
     private List<Especialidad> especialidades = new ArrayList<>();
 
     @OneToMany(mappedBy = "profesionalSolicitante", fetch = FetchType.LAZY)
-    @JsonManagedReference("profesional-requests")
+    @JsonIgnore
     private List<AccesoRequest> Solicitudes_De_Acceso;
 
     @OneToMany(mappedBy = "autorProfesional", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -101,6 +101,8 @@ public class ProfesionalDeSalud {
     public Administrador getHabilitadoPor() {return habilitadoPor;}
     public void setHabilitadoPor(Administrador habilitadoPor) {this.habilitadoPor = habilitadoPor;}
 
+    @JsonIgnore
     public List<AccesoRequest> getSolicitudes_De_Acceso() {return Solicitudes_De_Acceso;}
+    @JsonIgnore
     public void setSolicitudes_De_Acceso(List<AccesoRequest> solicitudes_De_Acceso) {Solicitudes_De_Acceso = solicitudes_De_Acceso;}
 }

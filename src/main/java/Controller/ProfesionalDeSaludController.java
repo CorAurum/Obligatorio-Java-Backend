@@ -26,4 +26,38 @@ public class ProfesionalDeSaludController {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+
+    @GET
+    public Response listarProfesionales() {
+        try {
+            return Response.ok(profesionalDeSaludService.listarProfesionales()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response obtenerPorId(@PathParam("id") String id) {
+        try {
+            ProfesionalDeSalud profesional = profesionalDeSaludService.obtenerPorId(id);
+            if (profesional == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Profesional no encontrado").build();
+            }
+            return Response.ok(profesional).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response actualizarProfesional(@PathParam("id") String id, ProfesionalDeSalud profesional) {
+        try {
+            ProfesionalDeSalud actualizado = profesionalDeSaludService.actualizarProfesional(id, profesional);
+            return Response.ok(actualizado).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
 }

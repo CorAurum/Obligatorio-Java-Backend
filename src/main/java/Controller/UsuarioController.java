@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 
-@Path("/usuarios/externo")
+@Path("/usuarios")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class UsuarioController {
@@ -20,6 +20,7 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @POST
+    @Path("/externo")
     public Response crearOActualizarDesdePeriferico(UsuarioLocalPayload payload,
                                                     @QueryParam("forceMerge") @DefaultValue("false") boolean forceMerge) {
         try {
@@ -32,6 +33,17 @@ public class UsuarioController {
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+    }
+
+    @GET
+    public Response listarUsuarios() {
+        try {
+            List<Usuario> usuarios = usuarioService.listarUsuarios();
+            return Response.ok(usuarios).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(e.getMessage()).build();
         }
     }
 
