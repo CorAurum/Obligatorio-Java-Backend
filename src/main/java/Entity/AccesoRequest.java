@@ -43,6 +43,14 @@ public class AccesoRequest {
 
     private String motivo;
 
+    public ProfesionalDeSalud getProfesionalSolicitante() {
+        return profesionalSolicitante;
+    }
+
+    public void setProfesionalSolicitante(ProfesionalDeSalud profesionalSolicitante) {
+        this.profesionalSolicitante = profesionalSolicitante;
+    }
+
     public enum EstadoRequest { PENDIENTE, APROBADO, RECHAZADO }
 
     public AccesoRequest() {}
