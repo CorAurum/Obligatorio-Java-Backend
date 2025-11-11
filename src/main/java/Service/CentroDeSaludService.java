@@ -41,8 +41,11 @@ public class CentroDeSaludService {
 
         centro.setCreadoPor(admin);
         centro.setEstado(CentroDeSalud.EstadoCentro.HABILITADO);
+
         centroDeSaludRepository.crear(centro);
+
         enviarAlPeriferico(centro); // crea la clinica en el componente periferico
+
         return centro;
     }
 
@@ -61,6 +64,7 @@ public class CentroDeSaludService {
             String perifericoUrl = "http://localhost:8081/api/clinicas";
 
             ClinicaPayload payload = new ClinicaPayload(
+                    centro.getId(),
                     centro.getNombre(),
                     centro.getDireccion(),
                     centro.getTelefono(),

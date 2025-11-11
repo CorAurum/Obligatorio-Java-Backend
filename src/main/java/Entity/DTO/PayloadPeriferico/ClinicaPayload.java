@@ -1,14 +1,18 @@
 package Entity.DTO.PayloadPeriferico;
 
 public class ClinicaPayload {
+
+
+    private String id;
     private String nombre;
     private String direccion;
     private String telefono;
     private String tipoInstitucion;
     private String dominioSubdominio;
 
-    public ClinicaPayload(String nombre, String direccion, String telefono,
+    public ClinicaPayload(String id, String nombre, String direccion, String telefono,
                           String tipoInstitucion, String dominioSubdominio) {
+        this.id = id;
         this.nombre = nombre;
         this.direccion = direccion;
         this.telefono = telefono;
@@ -17,6 +21,10 @@ public class ClinicaPayload {
     }
 
     // Getters y setters
+
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
