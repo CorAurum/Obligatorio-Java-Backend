@@ -18,7 +18,7 @@ public class UsuarioLocalRepository {
 
     public UsuarioLocal buscarPorCentroYIdLocal(String centroId, String idLocal) {
         List<UsuarioLocal> res = em.createQuery(
-                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSaludId = :c AND u.idLocal = :id",
+                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSalud.id = :c AND u.idLocal = :id",
                         UsuarioLocal.class)
                 .setParameter("c", centroId)
                 .setParameter("id", idLocal)
@@ -28,7 +28,7 @@ public class UsuarioLocalRepository {
 
     public List<UsuarioLocal> listarPorCentro(String centroId) {
         return em.createQuery(
-                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSaludId = :c",
+                        "SELECT u FROM UsuarioLocal u WHERE u.centroDeSalud.id = :c",
                         UsuarioLocal.class)
                 .setParameter("c", centroId)
                 .getResultList();

@@ -13,11 +13,8 @@ public class UsuarioLocal {
     @Column(name = "id_local", nullable = false)
     private String idLocal;
 
-    @Column(name = "centro_salud_id")
-    private String centroDeSaludId;
-
     @Column(name = "usuario_id_inus")
-    private String usuarioId;
+    private String usuarioId; // REVISAR DE REMOVER, NO DEBERIA USARSE, DEBERIA USAR PRIVATE USUARIO USUARIO
 
     private String nombres;
     private String apellidos;
@@ -39,9 +36,6 @@ public class UsuarioLocal {
     // Getters / Setters
     public String getIdLocal() { return idLocal; }
     public void setIdLocal(String idLocal) { this.idLocal = idLocal; }
-
-    public String getCentroDeSaludId() { return centroDeSaludId; }
-    public void setCentroDeSaludId(String centroDeSaludId) { this.centroDeSaludId = centroDeSaludId; }
 
     public String getUsuarioId() { return usuarioId; }
     public void setUsuarioId(String usuarioId) { this.usuarioId = usuarioId; }

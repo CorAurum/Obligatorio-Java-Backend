@@ -58,8 +58,6 @@ public class UsuarioService {
         if (nuevoLocal) {
             ul = new UsuarioLocal();
             ul.setIdLocal(p.idLocal);
-            ul.setCentroDeSaludId(p.centroId);
-            // revisar si setear 2 ids es necesario, es la misma id, medio al pedo
 
             CentroDeSalud centro = centroDeSaludRepository.buscarPorId(p.centroId);
             if (centro == null) {
