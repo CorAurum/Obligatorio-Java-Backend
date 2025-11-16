@@ -1,15 +1,20 @@
 package Service;
 
 import Entity.CentroDeSalud;
+import Entity.DTO.ProfesionalCentralDTO;
+import Entity.Especialidad;
 import Entity.Usuarios.Administrador;
 import Entity.Usuarios.ProfesionalDeSalud;
 import Repository.AdministradorRepository;
 import Repository.CentroDeSaludRepository;
+import Repository.EspecialidadRepository;
 import Repository.ProfesionalDeSaludRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Stateless
@@ -25,19 +30,67 @@ public class ProfesionalDeSaludService {
     @Inject
     private AdministradorRepository administradorRepository;
 
-    public ProfesionalDeSalud registrarProfesional(ProfesionalDeSalud p, String centroId, Long adminId) {
+    @Inject
+    private EspecialidadRepository especialidadRepository;
+
+//    public ProfesionalDeSalud registrarProfesional(ProfesionalDeSalud p, String centroId) {
+//        CentroDeSalud centro = centroDeSaludRepository.buscarPorId(centroId);
+//      //  Administrador admin = administradorRepository.buscarPorId(adminId);
+//        if (centro == null)
+//            throw new IllegalArgumentException("Centro de salud no encontrado");
+//
+//        if (p.getId() == null)
+//            p.setId(UUID.randomUUID().toString());
+//
+//        p.setCentroDeSalud(centro);
+//        p.setFechaRegistroProfesional(LocalDate.now());
+//        p.setEstado(ProfesionalDeSalud.EstadoProfesional.ACTIVO);
+//      //  p.setHabilitadoPor(admin);
+//
+//        profesionalDeSaludRepository.crear(p);
+//        return p;
+//    }
+
+    public ProfesionalDeSalud registrarProfesionalDesdePeriferico(ProfesionalCentralDTO dto, String centroId) {
+        if (centroId == null || centroId.isBlank()) {
+            throw new IllegalArgumentException("centroId es obligatorio");
+        }
+
         CentroDeSalud centro = centroDeSaludRepository.buscarPorId(centroId);
-        Administrador admin = administradorRepository.buscarPorId(adminId);
-        if (centro == null)
-            throw new IllegalArgumentException("Centro de salud no encontrado");
+        if (centro == null) {
+            throw new IllegalArgumentException("Centro de salud no encontrado con id: " + centroId);
+        }
 
-        if (p.getId() == null)
+        ProfesionalDeSalud p = new ProfesionalDeSalud();
+
+        // Si el periférico mando id, lo usamos; si no, generamos uno nuevo
+        if (dto.getId() == null || dto.getId().isBlank()) {
             p.setId(UUID.randomUUID().toString());
+        } else {
+            p.setId(dto.getId());
+        }
 
-        p.setCentroDeSalud(centro);
+        p.setNumeroRegistro(dto.getNumeroRegistro()); // "Lo borramos?"
+        p.setNombres(dto.getNombres());
+        p.setApellidos(dto.getApellidos());
+        p.setEmail(dto.getEmail());
+        p.setTelefono(dto.getTelefono());
         p.setFechaRegistroProfesional(LocalDate.now());
         p.setEstado(ProfesionalDeSalud.EstadoProfesional.ACTIVO);
-        p.setHabilitadoPor(admin);
+        p.setCentroDeSalud(centro);
+
+        // Asociar especialidades por IDs (se asume que ya existen en central con mismo id)
+        List<Especialidad> especialidades = new ArrayList<>();
+        if (dto.getEspecialidadesIds() != null) {
+            for (String espId : dto.getEspecialidadesIds()) {
+                Especialidad esp = especialidadRepository.buscarPorId(espId);
+                if (esp == null) {
+                    throw new IllegalArgumentException("Especialidad no encontrada en central con id: " + espId);
+                }
+                especialidades.add(esp);
+            }
+        }
+        p.setEspecialidades(especialidades);
 
         profesionalDeSaludRepository.crear(p);
         return p;

@@ -1,5 +1,6 @@
 package Controller;
 
+import Entity.DTO.ProfesionalCentralDTO;
 import Entity.Usuarios.ProfesionalDeSalud;
 import Service.ProfesionalDeSaludService;
 import jakarta.inject.Inject;
@@ -16,11 +17,10 @@ public class ProfesionalDeSaludController {
     private ProfesionalDeSaludService profesionalDeSaludService;
 
     @POST
-    public Response registrarProfesional(ProfesionalDeSalud profesional,
-                                         @QueryParam("centroId") String centroId,
-                                         @QueryParam("adminId") Long adminId) {
+    public Response registrarProfesionalDesdePeriferico(ProfesionalCentralDTO dto,
+                                                        @QueryParam("centroId") String centroId) {
         try {
-            ProfesionalDeSalud creado = profesionalDeSaludService.registrarProfesional(profesional, centroId, adminId);
+            ProfesionalDeSalud creado = profesionalDeSaludService.registrarProfesionalDesdePeriferico(dto, centroId);
             return Response.ok(creado).build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

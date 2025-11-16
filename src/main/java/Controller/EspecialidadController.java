@@ -30,17 +30,29 @@ public class EspecialidadController {
                         .build();
             }
 
+            // 1️⃣ Crear en CENTRAL
             Especialidad creada = especialidadService.crearSiNoExiste(
                     especialidad.getNombre(),
                     especialidad.getDescripcion()
             );
+
+            // 2️⃣ Replicar en PERIFÉRICO
+            try {
+                especialidadService.enviarEspecialidad(creada);
+            } catch (Exception e) {
+                System.err.println("⚠️ No se pudo enviar al periférico: " + e.getMessage());
+                // no hacemos rollback en central
+            }
+
             return Response.status(Response.Status.CREATED).entity(creada).build();
+
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error al crear especialidad: " + e.getMessage())
                     .build();
         }
     }
+
 
     // 🔹 GET /especialidades → Listar todas las especialidades
     @GET
