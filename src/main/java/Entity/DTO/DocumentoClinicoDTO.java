@@ -7,17 +7,17 @@ public class DocumentoClinicoDTO {
     private LocalDateTime fechaCreacion;
     private String area;
     private String descripcion;
-    private String urlAlojamiento;
+    private String documentoId;
     private String profesionalNombre;
     private String profesionalApellido;
 
     // Constructor completo
     public DocumentoClinicoDTO(LocalDateTime fechaCreacion, String area, String descripcion,
-                               String urlAlojamiento, String profesionalNombre, String profesionalApellido) {
+                               String documentoId, String profesionalNombre, String profesionalApellido) {
         this.fechaCreacion = fechaCreacion;
         this.area = area;
         this.descripcion = descripcion;
-        this.urlAlojamiento = urlAlojamiento;
+        this.documentoId = documentoId;
         this.profesionalNombre = profesionalNombre;
         this.profesionalApellido = profesionalApellido;
     }
@@ -47,12 +47,12 @@ public class DocumentoClinicoDTO {
         this.descripcion = descripcion;
     }
 
-    public String getUrlAlojamiento() {
-        return urlAlojamiento;
+    public String getdocumentoId() {
+        return documentoId;
     }
 
-    public void setUrlAlojamiento(String urlAlojamiento) {
-        this.urlAlojamiento = urlAlojamiento;
+    public void setdocumentoIdo(String documentoId) {
+        this.documentoId = documentoId;
     }
 
     public String getProfesionalNombre() {

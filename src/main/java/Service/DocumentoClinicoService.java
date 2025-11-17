@@ -192,7 +192,7 @@ public class DocumentoClinicoService {
                         d.getFechaCreacion(),
                         d.getArea(),
                         d.getDescripcion(),
-                        d.getUrlAlojamiento(),
+                        d.getId(),
                         d.getAutorProfesional() != null ? d.getAutorProfesional().getNombres() : null,
                         d.getAutorProfesional() != null ? d.getAutorProfesional().getApellidos() : null
                 ))
