@@ -1,6 +1,7 @@
 package Controller;
 
 import Entity.DTO.DocumentoClinicoDTO;
+import Entity.DTO.DocumentoClinicoParaUsuarioDTO;
 import Entity.DTO.DocumentoClinicoPayload;
 import Entity.DocumentoClinico;
 import Service.DocumentoClinicoService;
@@ -65,4 +66,28 @@ public class DocumentoClinicoController {
         List<DocumentoClinico> docs = documentoClinicoService.listarTodos();
         return Response.ok(docs).build();
     }
+
+
+    // devuelve documento clinico completo traido desde el periferico para que el usuario lo vea
+
+    @GET
+    @Path("/{id}/detalle")
+    public Response obtenerDetalleDocumento(@PathParam("id") String documentoId) {
+        try {
+            DocumentoClinicoParaUsuarioDTO dto =
+                    documentoClinicoService.obtenerDocumentoCompleto(documentoId);
+
+            // Devuelve el JSON recibido desde el periférico al front
+            return Response.ok(dto).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+
 }
