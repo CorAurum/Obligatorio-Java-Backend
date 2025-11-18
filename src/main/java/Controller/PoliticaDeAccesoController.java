@@ -14,6 +14,7 @@ import Service.AccesoLogService;
 import Service.DocumentoClinicoService;
 import Service.PoliticaDeAccesoService;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -128,6 +129,7 @@ public class PoliticaDeAccesoController {
     @GET
     @Path("/historiaClinica")
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response obtenerHistoria(@QueryParam("profesionalId") String profesionalId,
                                     @QueryParam("usuarioId") String usuarioId) {
         boolean permitido = politicaService.puedeAcceder(profesionalId, usuarioId);
