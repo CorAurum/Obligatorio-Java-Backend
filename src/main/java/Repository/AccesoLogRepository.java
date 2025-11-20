@@ -31,4 +31,6 @@ public class AccesoLogRepository {
                 .setParameter("profesionalId", profesionalId)
                 .getResultList();
     }
+
+
 }

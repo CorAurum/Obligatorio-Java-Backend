@@ -1,9 +1,11 @@
 package Service;
 
 import Entity.AccesoLog;
+import Entity.DTO.AccesoLogDTO;
 import Entity.Usuarios.Usuario;
 import Entity.DocumentoClinico;
 import Repository.AccesoLogRepository;
+import Repository.ProfesionalDeSaludRepository;
 import Repository.UsuarioRepository;
 import Repository.DocumentoClinicoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,6 +25,10 @@ public class AccesoLogService {
 
     @Inject
     private DocumentoClinicoRepository documentoClinicoRepository;
+
+    @Inject
+    private ProfesionalDeSaludRepository profesionalDeSaludRepository;
+
 
     /**
      * Registra un intento de acceso (exitoso o fallido) a los datos de un usuario.
@@ -59,4 +65,32 @@ public class AccesoLogService {
     public List<AccesoLog> listarPorProfesional(String profesionalId) {
         return accesoLogRepository.listarPorProfesional(profesionalId);
     }
+
+
+    public List<AccesoLogDTO> listarDTOporUsuario(String usuarioId) {
+        List<AccesoLog> logs = accesoLogRepository.listarPorUsuario(usuarioId);
+
+        return logs.stream().map(log -> {
+
+            var profesional = profesionalDeSaludRepository.buscarPorId(log.getUsuarioSolicitante());
+
+            String nombre = profesional != null ? profesional.getNombres() : "Desconocido";
+            String apellido = profesional != null ? profesional.getApellidos() : "";
+            String centro = profesional != null && profesional.getCentroDeSalud() != null
+                    ? profesional.getCentroDeSalud().getNombre()
+                    : "No asignado";
+
+            return new AccesoLogDTO(
+                    log.getUsuarioSolicitante(),
+                    nombre,
+                    apellido,
+                    centro,
+                    log.getFechaAcceso(),
+                    log.getResultado(),
+                    log.getMotivo()
+            );
+        }).toList();
+    }
+
+
 }

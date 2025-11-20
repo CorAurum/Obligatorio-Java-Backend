@@ -75,31 +75,43 @@ public class PoliticaDeAccesoService {
     // CONTROLA CENTRO DE SALUD AL QUE PERTENECE EL PROFESIONAL Y LAS ESPECIALIDADES QUE EL USUARIO
     // AUTORIZO DENTRO DE DICHO CENTRO.
     public boolean puedeAcceder(String profesionalId, String usuarioId) {
+
         ProfesionalDeSalud prof = profesionalDeSaludRepository.buscarPorId(profesionalId);
         if (prof == null) throw new IllegalArgumentException("Profesional no encontrado");
 
         Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
         if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado");
 
-        // Obtener políticas activas del usuario
         List<PoliticaDeAcceso> politicas = politicaRepository.listarPorUsuario(usuarioId);
 
-        for (PoliticaDeAcceso p : politicas) {
-            if (p.getEstado() == PoliticaDeAcceso.EstadoPolitica.ACTIVA
-                    && p.getCentroDeSalud().getId().equals(prof.getCentroDeSalud().getId())) {
+        LocalDate hoy = LocalDate.now();
 
-                // Comparar especialidades del profesional con las habilitadas en la política
-                for (Especialidad espProf : prof.getEspecialidades()) {
-                    for (Especialidad espPol : p.getEspecialidades()) {
-                        if (espProf.getId().equals(espPol.getId())) {
-                            return true; // ✅ acceso permitido
-                        }
-                    }
-                }
-            }
+        for (PoliticaDeAcceso p : politicas) {
+
+            // 🔹 Política ACTIVA
+            if (p.getEstado() != PoliticaDeAcceso.EstadoPolitica.ACTIVA)
+                continue;
+
+            // 🔹 Vigencia no expirada (si corresponde)
+            if (p.getVigenciaHasta() != null && p.getVigenciaHasta().isBefore(hoy))
+                continue;
+
+            // 🔹 Centro de salud habilitado coincide
+            if (!p.getCentroDeSalud().getId().equals(prof.getCentroDeSalud().getId()))
+                continue;
+
+            // 🔹 Debe compartir al menos una especialidad
+            boolean comparteEspecialidad = prof.getEspecialidades().stream()
+                    .anyMatch(espProf -> p.getEspecialidades().stream()
+                            .anyMatch(espPol -> espPol.getId().equals(espProf.getId()))
+                    );
+
+            if (comparteEspecialidad)
+                return true; // Acceso concedido
         }
 
-        return false; // 🚫 acceso denegado
+        return false; // Ninguna política habilita el acceso
     }
+
 
 }
