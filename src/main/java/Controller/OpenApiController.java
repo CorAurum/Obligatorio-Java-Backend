@@ -7,8 +7,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.io.InputStream;
-
 /**
  * Controller para servir la documentación Swagger UI
  */
@@ -29,8 +27,10 @@ public class OpenApiController {
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
                 "    <title>Sistema de Salud API - Swagger UI</title>\n" +
-                "    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css\" />\n" +
-                "    <link rel=\"icon\" type=\"image/png\" href=\"https://unpkg.com/swagger-ui-dist@5.10.5/favicon-32x32.png\" sizes=\"32x32\" />\n" +
+                "    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css\" />\n"
+                +
+                "    <link rel=\"icon\" type=\"image/png\" href=\"https://unpkg.com/swagger-ui-dist@5.10.5/favicon-32x32.png\" sizes=\"32x32\" />\n"
+                +
                 "    <style>\n" +
                 "        html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }\n" +
                 "        *, *:before, *:after { box-sizing: inherit; }\n" +
@@ -39,8 +39,10 @@ public class OpenApiController {
                 "</head>\n" +
                 "<body>\n" +
                 "    <div id=\"swagger-ui\"></div>\n" +
-                "    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js\" charset=\"UTF-8\"></script>\n" +
-                "    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js\" charset=\"UTF-8\"></script>\n" +
+                "    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js\" charset=\"UTF-8\"></script>\n"
+                +
+                "    <script src=\"https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js\" charset=\"UTF-8\"></script>\n"
+                +
                 "    <script>\n" +
                 "        window.onload = function() {\n" +
                 "            const ui = SwaggerUIBundle({\n" +
@@ -77,11 +79,10 @@ public class OpenApiController {
     public Response getOpenApiSpec() {
         try {
             // Generate OpenAPI spec dynamically
-            io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder builder =
-                new io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder();
+            io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder builder = new io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder();
 
             io.swagger.v3.oas.integration.api.OpenApiContext context = builder
-                .buildContext(true);
+                    .buildContext(true);
 
             io.swagger.v3.oas.models.OpenAPI openAPI = context.read();
 

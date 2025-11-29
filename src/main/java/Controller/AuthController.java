@@ -1,6 +1,11 @@
 package Controller;
 
 import Annotation.Secured;
+import Entity.DTO.AuthCallbackResponse;
+import Entity.DTO.OidcUserInfo;
+import Entity.DTO.TokenResponse;
+import Service.AuthService;
+import Config.OidcConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +18,12 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.inject.Inject;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * AuthController - Validación de tokens JWT
@@ -27,21 +38,96 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 @Tag(name = "Autenticación", description = "Endpoints para validación de tokens JWT (autenticación externa con gub.uy)")
 public class AuthController {
 
+    @Inject
+    private AuthService authService;
+
+    @Inject
+    private OidcConfig oidcConfig;
+
     // Redirect URLs loaded from environment variables
-    private final String frontendRedirectUrl;
+    private final String frontendBaseUrl;
     private final String mobileRedirectUrl;
 
     public AuthController() {
         // Load redirect URLs from environment variables or use defaults
-        String frontendEnv = System.getenv("FRONTEND_REDIRECT");
-        this.frontendRedirectUrl = (frontendEnv != null && !frontendEnv.isEmpty())
+        String frontendEnv = System.getenv("FRONTEND_BASE_URL");
+        this.frontendBaseUrl = (frontendEnv != null && !frontendEnv.isEmpty())
                 ? frontendEnv
-                : "http://localhost:3000"; // Default for development
+                : "https://frontend.web.elasticloud.uy"; // Default for production
 
         String mobileEnv = System.getenv("MOBILE_REDIRECT");
         this.mobileRedirectUrl = (mobileEnv != null && !mobileEnv.isEmpty())
                 ? mobileEnv
                 : "myapp://auth/callback"; // Default mobile deep link
+    }
+
+    /**
+     * Initiate login - redirect to gub.uy OIDC
+     * GET /api/auth/login?portal=admin|profesional|usuario
+     */
+    @GET
+    @Path("/login")
+    @Produces(MediaType.TEXT_HTML)
+    @Operation(summary = "Iniciar login OIDC", description = "Redirige al usuario a gub.uy para autenticación OIDC")
+    public Response initiateLogin(@QueryParam("portal") @DefaultValue("usuario") String portal) {
+        try {
+            // Validate portal parameter
+            if (!portal.equals("admin") && !portal.equals("profesional") && !portal.equals("usuario")) {
+                portal = "usuario";
+            }
+
+            // Check if OIDC is properly configured
+            if (!isOidcConfigured()) {
+                // Return HTML error page instead of JSON
+                String htmlError = "<!DOCTYPE html>\n" +
+                        "<html lang=\"en\">\n" +
+                        "<head>\n" +
+                        "    <meta charset=\"UTF-8\">\n" +
+                        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                        "    <title>Configuration Error</title>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "    <h1>Authentication Service Unavailable</h1>\n" +
+                        "    <p>The authentication service is not properly configured. Please contact the administrator.</p>\n"
+                        +
+                        "    <p><a href=\"/\">Return to homepage</a></p>\n" +
+                        "</body>\n" +
+                        "</html>";
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(htmlError)
+                        .build();
+            }
+
+            // Generate state parameter for CSRF protection
+            String state = UUID.randomUUID().toString();
+
+            // Build authorization URL
+            String authUrl = buildAuthorizationUrl(portal, state);
+
+            // Redirect to gub.uy
+            return Response.temporaryRedirect(URI.create(authUrl)).build();
+
+        } catch (Exception e) {
+            System.err.println("Login initiation error: " + e.getMessage());
+            e.printStackTrace();
+            // Return HTML error page instead of JSON ErrorResponse
+            String htmlError = "<!DOCTYPE html>\n" +
+                    "<html lang=\"en\">\n" +
+                    "<head>\n" +
+                    "    <meta charset=\"UTF-8\">\n" +
+                    "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                    "    <title>Login Error</title>\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "    <h1>Login Error</h1>\n" +
+                    "    <p>An error occurred while initiating login. Please try again later.</p>\n" +
+                    "    <p><a href=\"/\">Return to homepage</a></p>\n" +
+                    "</body>\n" +
+                    "</html>";
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(htmlError)
+                    .build();
+        }
     }
 
     /**
@@ -88,38 +174,153 @@ public class AuthController {
     }
 
     /**
-     * Callback endpoint for gub.uy authentication - Frontend redirect
-     * GET /api/auth/callback/web
-     *
-     * This endpoint serves an HTML page that redirects to the frontend application.
-     * It's used as a callback URL for gub.uy authentication since they only accept
-     * URLs under the same domain as the backend.
+     * OIDC Callback - Handle the full authentication flow
+     * GET /api/auth/callback/web?code=...&state=...&portal=...
      */
     @GET
     @Path("/callback/web")
-    @Produces(MediaType.TEXT_HTML)
-    public Response callbackWeb() {
-        String htmlContent = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
-                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Redirecting to Frontend...</title>\n" +
-                "    <meta http-equiv=\"refresh\" content=\"0; url=" + frontendRedirectUrl + "\">\n" +
-                "    <script>\n" +
-                "        // Fallback redirect using JavaScript\n" +
-                "        window.location.href = '" + frontendRedirectUrl + "';\n" +
-                "    </script>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "    <p>Redirecting to frontend application...</p>\n" +
-                "    <p>If you are not redirected automatically, <a href=\"" + frontendRedirectUrl
-                + "\">click here</a>.</p>\n"
-                +
-                "</body>\n" +
-                "</html>";
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Callback OIDC completo", description = "Maneja el callback completo de gub.uy, intercambia tokens, valida usuario y redirige apropiadamente")
+    public Response callbackWeb(@QueryParam("code") String code,
+            @QueryParam("state") String state,
+            @QueryParam("error") String error,
+            @QueryParam("portal") @DefaultValue("usuario") String portal) {
+        try {
+            // Check for OAuth error
+            if (error != null) {
+                System.err.println("OAuth error: " + error);
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(new AuthCallbackResponse("OAuth error: " + error))
+                        .build();
+            }
 
-        return Response.ok(htmlContent).build();
+            // Validate required parameters
+            if (code == null || code.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(new AuthCallbackResponse("Missing authorization code"))
+                        .build();
+            }
+
+            // Validate portal parameter
+            if (!portal.equals("admin") && !portal.equals("profesional") && !portal.equals("usuario")) {
+                portal = "usuario";
+            }
+
+            // 1. Exchange code for tokens
+            Optional<TokenResponse> tokenResponse = authService.exchangeCodeForTokens(code);
+            if (!tokenResponse.isPresent()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity(new AuthCallbackResponse("Failed to exchange code for tokens"))
+                        .build();
+            }
+
+            // 2. Decode id_token to get user info
+            Optional<OidcUserInfo> userInfo = authService.decodeOidcToken(tokenResponse.get().getIdToken());
+            if (!userInfo.isPresent()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity(new AuthCallbackResponse("Invalid id_token"))
+                        .build();
+            }
+
+            // 3. Check admin status for admin portal
+            if ("admin".equals(portal)) {
+                String cedula = userInfo.get().getNumeroDocumento();
+                if (cedula == null || cedula.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(new AuthCallbackResponse("No cedula found in user info"))
+                            .build();
+                }
+
+                boolean isAdmin = authService.isUserAdmin(cedula);
+                if (!isAdmin) {
+                    // Redirect to error page for non-admin users
+                    AuthCallbackResponse response = new AuthCallbackResponse();
+                    response.setError("not_admin");
+                    response.setRedirectUrl(frontendBaseUrl + "/?error=not_admin");
+                    return Response.ok(response).build();
+                }
+            }
+
+            // 4. Create or find user and generate our JWT
+            Optional<Entity.UsuarioAuth> user = authService.createOrFindUser(userInfo.get());
+            String backendToken = null;
+            if (user.isPresent()) {
+                backendToken = authService.generateBackendToken(user.get());
+            }
+
+            // 5. Determine redirect URL based on portal
+            String redirectUrl = getRedirectUrlForPortal(portal);
+
+            // 6. Return response with redirect URL and user info
+            AuthCallbackResponse response = new AuthCallbackResponse(
+                    redirectUrl,
+                    portal,
+                    userInfo.get(),
+                    backendToken);
+
+            return Response.ok(response).build();
+
+        } catch (Exception e) {
+            System.err.println("Callback error: " + e.getMessage());
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new AuthCallbackResponse("Internal server error during authentication"))
+                    .build();
+        }
+    }
+
+    /**
+     * Check if OIDC is properly configured (not using default values)
+     */
+    private boolean isOidcConfigured() {
+        String clientId = oidcConfig.getClientId();
+        String clientSecret = oidcConfig.getClientSecret();
+        String authorizeUrl = oidcConfig.getAuthorizeUrl();
+
+        // Check if any of the critical values are still default/placeholder values
+        return clientId != null && !clientId.isEmpty() && !clientId.equals("default-client-id") &&
+                clientSecret != null && !clientSecret.isEmpty() && !clientSecret.equals("default-client-secret") &&
+                authorizeUrl != null && !authorizeUrl.isEmpty()
+                && !authorizeUrl.equals("https://auth.gub.uy/oauth2/authorize");
+    }
+
+    /**
+     * Build gub.uy authorization URL
+     */
+    private String buildAuthorizationUrl(String portal, String state) {
+        // Use the injected OidcConfig instead of reading from environment directly
+        String baseUrl = oidcConfig.getAuthorizeUrl();
+        String clientId = oidcConfig.getClientId();
+        String scope = oidcConfig.getScope();
+
+        // Validate that we have the required configuration
+        if (clientId == null || clientId.isEmpty() || clientId.equals("default-client-id")) {
+            throw new IllegalStateException("OIDC client ID is not properly configured");
+        }
+
+        return baseUrl +
+                "?client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8) +
+                "&redirect_uri=" + URLEncoder.encode(oidcConfig.getRedirectUri(), StandardCharsets.UTF_8) +
+                "&response_type=code" +
+                "&scope=" + URLEncoder.encode(scope, StandardCharsets.UTF_8) +
+                "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8) +
+                "&portal=" + URLEncoder.encode(portal, StandardCharsets.UTF_8) +
+                "&prompt=login";
+    }
+
+    /**
+     * Get redirect URL based on portal type
+     */
+    private String getRedirectUrlForPortal(String portal) {
+        switch (portal) {
+            case "admin":
+                return frontendBaseUrl + "/admin-hcen";
+            case "profesional":
+                return frontendBaseUrl + "/profesional";
+            case "usuario":
+            default:
+                return frontendBaseUrl + "/usuario-salud";
+        }
     }
 
     /**
