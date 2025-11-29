@@ -49,16 +49,41 @@ public class AuthController {
     private final String mobileRedirectUrl;
 
     public AuthController() {
-        // Load redirect URLs from environment variables or use defaults
-        String frontendEnv = System.getenv("FRONTEND_BASE_URL");
-        this.frontendBaseUrl = (frontendEnv != null && !frontendEnv.isEmpty())
-                ? frontendEnv
-                : "https://frontend.web.elasticloud.uy"; // Default for production
+        // Load redirect URLs from environment variables or properties file
+        this.frontendBaseUrl = loadConfigValue("FRONTEND_BASE_URL", "http://localhost:3000");
+        this.mobileRedirectUrl = loadConfigValue("MOBILE_REDIRECT", "myapp://auth/callback");
+    }
 
-        String mobileEnv = System.getenv("MOBILE_REDIRECT");
-        this.mobileRedirectUrl = (mobileEnv != null && !mobileEnv.isEmpty())
-                ? mobileEnv
-                : "myapp://auth/callback"; // Default mobile deep link
+    /**
+     * Load configuration value with priority: Environment Variable > Properties
+     * File > Default
+     */
+    private String loadConfigValue(String key, String defaultValue) {
+        // First check environment variable
+        String envValue = System.getenv(key);
+        if (envValue != null && !envValue.isEmpty()) {
+            return envValue;
+        }
+
+        // Then check properties file
+        try {
+            java.io.InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties");
+            if (input != null) {
+                java.util.Properties props = new java.util.Properties();
+                props.load(input);
+                String propValue = props.getProperty(key);
+                if (propValue != null && !propValue.isEmpty()) {
+                    // Remove quotes if present (some property files have quoted values)
+                    propValue = propValue.replaceAll("^\"|\"$", "").trim();
+                    return propValue;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: Could not load application.properties for " + key + ": " + e.getMessage());
+        }
+
+        // Return default
+        return defaultValue;
     }
 
     /**
@@ -78,6 +103,10 @@ public class AuthController {
 
             // Check if OIDC is properly configured
             if (!isOidcConfigured()) {
+                System.err.println("OIDC not properly configured:");
+                System.err.println("ClientId: '" + oidcConfig.getClientId() + "'");
+                System.err.println("ClientSecret: '" + oidcConfig.getClientSecret() + "'");
+                System.err.println("AuthorizeUrl: '" + oidcConfig.getAuthorizeUrl() + "'");
                 // Return HTML error page instead of JSON
                 String htmlError = "<!DOCTYPE html>\n" +
                         "<html lang=\"en\">\n" +
@@ -90,11 +119,13 @@ public class AuthController {
                         "    <h1>Authentication Service Unavailable</h1>\n" +
                         "    <p>The authentication service is not properly configured. Please contact the administrator.</p>\n"
                         +
+                        "    <p>Error: OIDC configuration incomplete</p>\n" +
                         "    <p><a href=\"/\">Return to homepage</a></p>\n" +
                         "</body>\n" +
                         "</html>";
                 return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                         .entity(htmlError)
+                        .type(MediaType.TEXT_HTML)
                         .build();
             }
 
@@ -184,7 +215,8 @@ public class AuthController {
     public Response callbackWeb(@QueryParam("code") String code,
             @QueryParam("state") String state,
             @QueryParam("error") String error,
-            @QueryParam("portal") @DefaultValue("usuario") String portal) {
+            @QueryParam("portal") @DefaultValue("usuario") String portal,
+            @Context jakarta.ws.rs.core.HttpHeaders headers) {
         try {
             // Check for OAuth error
             if (error != null) {
@@ -251,14 +283,66 @@ public class AuthController {
             // 5. Determine redirect URL based on portal
             String redirectUrl = getRedirectUrlForPortal(portal);
 
-            // 6. Return response with redirect URL and user info
-            AuthCallbackResponse response = new AuthCallbackResponse(
-                    redirectUrl,
-                    portal,
-                    userInfo.get(),
-                    backendToken);
+            // 6. Check if this is a browser request or API request
+            String acceptHeader = headers.getHeaderString("Accept");
+            boolean isBrowserRequest = acceptHeader != null && acceptHeader.contains("text/html");
 
-            return Response.ok(response).build();
+            // 7. Return appropriate response
+            if (isBrowserRequest) {
+                // Browser request - return HTML page that sets auth data and redirects
+                // Since frontend and backend are on different domains, we can't set cookies
+                // directly
+                // Instead, we'll redirect with URL parameters that the frontend can use
+                String authParams = "?auth_success=true&portal=" + portal +
+                        "&user_id=" + userInfo.get().getNumeroDocumento() +
+                        "&backend_token=" + java.net.URLEncoder.encode(backendToken, "UTF-8");
+
+                String finalRedirectUrl = redirectUrl + authParams;
+
+                String htmlRedirect = "<!DOCTYPE html>\n" +
+                        "<html lang=\"en\">\n" +
+                        "<head>\n" +
+                        "    <meta charset=\"UTF-8\">\n" +
+                        "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                        "    <title>Authentication Successful</title>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "    <div style=\"text-align: center; padding: 50px;\">\n" +
+                        "        <h2>✅ Authentication Successful!</h2>\n" +
+                        "        <p>Redirecting you to your portal...</p>\n" +
+                        "        <div style=\"margin: 20px 0;\">\n" +
+                        "            <div style=\"display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;\"></div>\n"
+                        +
+                        "        </div>\n" +
+                        "        <p><a href=\"" + finalRedirectUrl
+                        + "\">Click here if not redirected automatically</a></p>\n" +
+                        "    </div>\n" +
+                        "    <style>\n" +
+                        "        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n"
+                        +
+                        "    </style>\n" +
+                        "    <script>\n" +
+                        "        // Redirect after a brief delay to show success message\n" +
+                        "        setTimeout(function() {\n" +
+                        "            window.location.href = '" + finalRedirectUrl + "';\n" +
+                        "        }, 1500);\n" +
+                        "    </script>\n" +
+                        "</body>\n" +
+                        "</html>";
+
+                return Response.ok(htmlRedirect)
+                        .type(MediaType.TEXT_HTML)
+                        .build();
+            } else {
+                // API request - return JSON
+                AuthCallbackResponse response = new AuthCallbackResponse(
+                        redirectUrl,
+                        portal,
+                        userInfo.get(),
+                        backendToken);
+
+                return Response.ok(response).build();
+            }
 
         } catch (Exception e) {
             System.err.println("Callback error: " + e.getMessage());
@@ -277,11 +361,18 @@ public class AuthController {
         String clientSecret = oidcConfig.getClientSecret();
         String authorizeUrl = oidcConfig.getAuthorizeUrl();
 
-        // Check if any of the critical values are still default/placeholder values
-        return clientId != null && !clientId.isEmpty() && !clientId.equals("default-client-id") &&
-                clientSecret != null && !clientSecret.isEmpty() && !clientSecret.equals("default-client-secret") &&
-                authorizeUrl != null && !authorizeUrl.isEmpty()
-                && !authorizeUrl.equals("https://auth.gub.uy/oauth2/authorize");
+        // For now, be more lenient - just check that we have non-null, non-empty values
+        boolean configured = clientId != null && !clientId.isEmpty() &&
+                clientSecret != null && !clientSecret.isEmpty() &&
+                authorizeUrl != null && !authorizeUrl.isEmpty();
+
+        System.out.println("OIDC Configuration check:");
+        System.out.println("- ClientId: " + (clientId != null ? "'" + clientId + "'" : "null"));
+        System.out.println("- ClientSecret: " + (clientSecret != null ? "[SET]" : "null"));
+        System.out.println("- AuthorizeUrl: " + (authorizeUrl != null ? "'" + authorizeUrl + "'" : "null"));
+        System.out.println("- Overall configured: " + configured);
+
+        return configured;
     }
 
     /**
@@ -310,17 +401,11 @@ public class AuthController {
 
     /**
      * Get redirect URL based on portal type
+     * All portals redirect to /auth-redirect for session setup and portal
+     * redirection
      */
     private String getRedirectUrlForPortal(String portal) {
-        switch (portal) {
-            case "admin":
-                return frontendBaseUrl + "/admin-hcen";
-            case "profesional":
-                return frontendBaseUrl + "/profesional";
-            case "usuario":
-            default:
-                return frontendBaseUrl + "/usuario-salud";
-        }
+        return frontendBaseUrl + "/auth-redirect";
     }
 
     /**

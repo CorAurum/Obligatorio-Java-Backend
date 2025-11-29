@@ -90,17 +90,38 @@ public class AuthService {
             form.param("code", code);
             form.param("redirect_uri", oidcConfig.getRedirectUri());
 
+            // Debug logging
+            System.out.println("=== TOKEN EXCHANGE DEBUG ===");
+            System.out.println("Token URL: " + oidcConfig.getTokenUrl());
+            System.out.println("Client ID: " + oidcConfig.getClientId());
+            System.out.println("Code: " + code.substring(0, Math.min(20, code.length())) + "...");
+            System.out.println("Redirect URI: " + oidcConfig.getRedirectUri());
+
             // Make token request
             Response response = client.target(oidcConfig.getTokenUrl())
-                .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Basic " + encodedCredentials)
-                .post(Entity.form(form));
+                    .request(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Basic " + encodedCredentials)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .post(Entity.form(form));
+
+            System.out.println("Response status: " + response.getStatus());
 
             if (response.getStatus() == 200) {
                 TokenResponse tokenResponse = response.readEntity(TokenResponse.class);
+                System.out.println("Token exchange successful!");
+                System.out.println(
+                        "Received tokens - ID Token: " + (tokenResponse.getIdToken() != null ? "[PRESENT]" : "null"));
+                System.out.println("Access Token: " + (tokenResponse.getAccessToken() != null ? "[PRESENT]" : "null"));
+                System.out
+                        .println("Refresh Token: " + (tokenResponse.getRefreshToken() != null ? "[PRESENT]" : "null"));
+                System.out.println("Token Type: " + tokenResponse.getTokenType());
+                System.out.println("Expires In: " + tokenResponse.getExpiresIn());
+                System.out.println("=== END TOKEN EXCHANGE DEBUG ===");
                 return Optional.of(tokenResponse);
             } else {
-                System.err.println("Token exchange failed: " + response.getStatus() + " - " + response.readEntity(String.class));
+                String errorResponse = response.readEntity(String.class);
+                System.err.println("Token exchange failed: " + response.getStatus() + " - " + errorResponse);
+                System.out.println("=== END TOKEN EXCHANGE DEBUG ===");
                 return Optional.empty();
             }
 
@@ -125,9 +146,19 @@ public class AuthService {
             // Decode payload (second part)
             String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
 
+            System.out.println("=== JWT PAYLOAD DEBUG ===");
+            System.out.println("JWT Payload: " + payload);
+            System.out.println("==========================");
+
             // Parse JSON
             OidcUserInfo userInfo = new com.fasterxml.jackson.databind.ObjectMapper()
-                .readValue(payload, OidcUserInfo.class);
+                    .readValue(payload, OidcUserInfo.class);
+
+            System.out.println("Successfully decoded user info:");
+            System.out.println("- Subject: " + userInfo.getSubject());
+            System.out.println("- Numero Documento: " + userInfo.getNumeroDocumento());
+            System.out.println("- Email: " + userInfo.getEmail());
+            System.out.println("- Name: " + userInfo.getName());
 
             return Optional.of(userInfo);
 

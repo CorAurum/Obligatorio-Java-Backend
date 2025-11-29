@@ -45,6 +45,16 @@ public class OidcConfig {
         this.scope = getConfigValue("OIDC_SCOPE", props.getProperty("OIDC_SCOPE"));
         this.logoutUrl = getConfigValue("OIDC_LOGOUT_URL", props.getProperty("OIDC_LOGOUT_URL"));
 
+        // Debug logging
+        System.out.println("=== OIDC Configuration Loaded ===");
+        System.out.println("ClientId: '" + this.clientId + "'");
+        System.out.println("ClientSecret: '" + (this.clientSecret != null ? "[SET]" : "null") + "'");
+        System.out.println("RedirectUri: '" + this.redirectUri + "'");
+        System.out.println("AuthorizeUrl: '" + this.authorizeUrl + "'");
+        System.out.println("TokenUrl: '" + this.tokenUrl + "'");
+        System.out.println("Scope: '" + this.scope + "'");
+        System.out.println("=================================");
+
         // Set defaults for missing values instead of throwing exceptions
         if (clientId == null || clientId.isEmpty()) {
             System.err.println("WARNING: OIDC_CLIENT_ID not configured, using default for development");
