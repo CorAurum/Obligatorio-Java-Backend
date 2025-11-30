@@ -1,8 +1,10 @@
 package Controller;
 
 import Entity.AccesoRequest;
+import Entity.Usuarios.ProfesionalDeSalud;
 import Service.AccesoRequestService;
 import Service.NotificacionService;
+import Service.ProfesionalDeSaludService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,6 +19,9 @@ public class AccesoRequestController {
     private AccesoRequestService accesoRequestService;
 
     @Inject
+    private ProfesionalDeSaludService profesionalDeSaludService;
+
+    @Inject
     private NotificacionService notificacionService;
 
     @POST
@@ -26,10 +31,13 @@ public class AccesoRequestController {
             @QueryParam("motivo") String motivo) {
         AccesoRequest req = accesoRequestService.crearSolicitud(profesionalId, usuarioId, motivo);
 
+        ProfesionalDeSalud prof = profesionalDeSaludService.obtenerPorId(profesionalId);
+
         notificacionService.crear(
                 usuarioId,
                 "Nueva solicitud de acceso",
-                "El profesional " + profesionalId + " solicitó acceso a tu historia clínica."
+                "El profesional " + prof.getNombres() + prof.getApellidos() +
+                        "De la clinica" + prof.getCentroDeSalud().getNombre() + " solicitó acceso a tu historia clínica."
         );
 
 
