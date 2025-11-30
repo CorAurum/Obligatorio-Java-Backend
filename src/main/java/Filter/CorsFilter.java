@@ -17,6 +17,7 @@ public class CorsFilter implements ContainerResponseFilter {
 
         // Allow requests from your frontend
         headers.add("Access-Control-Allow-Origin", "http://localhost:3000");
+        headers.add("Access-Control-Allow-Origin", "https://hcen-central.vercel.app");
         headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
         headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
         headers.add("Access-Control-Allow-Credentials", "true");

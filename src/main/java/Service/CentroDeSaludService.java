@@ -57,7 +57,6 @@ public class CentroDeSaludService {
         return centroDeSaludRepository.buscarPorId(id);
     }
 
-
     private void enviarAlPeriferico(CentroDeSalud centro) {
         try {
             // 🔹 URL del periférico (ajustar si cambia el dominio o puerto)
@@ -92,6 +91,4 @@ public class CentroDeSaludService {
         }
     }
 
-
 }
-
