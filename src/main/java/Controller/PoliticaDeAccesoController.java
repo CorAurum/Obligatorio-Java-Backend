@@ -10,10 +10,7 @@ import Repository.DocumentoClinicoRepository;
 import Repository.PoliticaDeAccesoRepository;
 import Repository.ProfesionalDeSaludRepository;
 import Repository.UsuarioRepository;
-import Service.AccesoLogService;
-import Service.DocumentoClinicoService;
-import Service.NotificacionService;
-import Service.PoliticaDeAccesoService;
+import Service.*;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -44,6 +41,8 @@ public class PoliticaDeAccesoController {
     private AccesoLogService accesoLogService;
     @Inject
     private NotificacionService notificacionService;
+    @Inject
+    private ProfesionalDeSaludService profesionalDeSaludService;
 
     // Crear nueva política
     @POST
@@ -140,6 +139,8 @@ public class PoliticaDeAccesoController {
         // Registrar intento en AccesoLog
         accesoLogService.registrarIntento(profesionalId, usuarioId, permitido);
 
+        ProfesionalDeSalud prof = profesionalDeSaludService.obtenerPorId(profesionalId);
+
         if (!permitido) {
             return Response.status(Response.Status.FORBIDDEN)
                     .entity("Acceso denegado: el profesional no tiene permisos para este usuario.")
@@ -150,9 +151,10 @@ public class PoliticaDeAccesoController {
         List<DocumentoClinicoDTO> docs = documentoClinicoService.listarPorUsuarioDTO(usuarioId);
 
         notificacionService.crear(usuarioId,
-                "NUEVA_SOLICITUD",
-                "Nueva solicitud de acceso" +
-                "El profesional " + profesionalId + " solicitó acceso al usuario " + usuarioId
+                "NUEVO ACCESO",
+                "Nuevo acceso a tu historia clinica" +
+                        "El profesional " + prof.getNombres() + prof.getApellidos() +
+                        "De la clinica" + prof.getCentroDeSalud().getNombre() + " Accedio a tu historia clinica"
         );
 
 
