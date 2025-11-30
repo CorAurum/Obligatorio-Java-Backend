@@ -56,7 +56,7 @@ public class AuthController {
 
     public AuthController() {
         // Load redirect URLs from environment variables or properties file
-        this.frontendBaseUrl = loadConfigValue("FRONTEND_BASE_URL", "http://localhost:3000");
+        this.frontendBaseUrl = loadConfigValue("FRONTEND_BASE_URL", "http://hcen-central.vercel.app");
         this.mobileRedirectUrl = loadConfigValue("MOBILE_REDIRECT", "myapp://auth/callback");
     }
 
