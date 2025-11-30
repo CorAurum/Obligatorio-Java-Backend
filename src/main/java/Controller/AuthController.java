@@ -4,7 +4,10 @@ import Annotation.Secured;
 import Entity.DTO.AuthCallbackResponse;
 import Entity.DTO.OidcUserInfo;
 import Entity.DTO.TokenResponse;
+import Entity.Usuarios.Administrador;
+import Entity.UsuarioAuth;
 import Service.AuthService;
+import Service.AdministradorService;
 import Config.OidcConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,6 +43,9 @@ public class AuthController {
 
     @Inject
     private AuthService authService;
+
+    @Inject
+    private AdministradorService administradorService;
 
     @Inject
     private OidcConfig oidcConfig;
@@ -88,7 +94,7 @@ public class AuthController {
 
     /**
      * Initiate login - redirect to gub.uy OIDC
-     * GET /api/auth/login?portal=admin|profesional|usuario
+     * GET /api/auth/login?portal=admin|usuario
      */
     @GET
     @Path("/login")
@@ -96,10 +102,18 @@ public class AuthController {
     @Operation(summary = "Iniciar login OIDC", description = "Redirige al usuario a gub.uy para autenticación OIDC")
     public Response initiateLogin(@QueryParam("portal") @DefaultValue("usuario") String portal) {
         try {
+            System.out.println("=== LOGIN FIRST DEBUG  ===");
+            System.out.println("Requested portal: " + portal);
+            System.out.println("==========================");
+
             // Validate portal parameter
-            if (!portal.equals("admin") && !portal.equals("profesional") && !portal.equals("usuario")) {
+            if (!portal.equals("admin") && !portal.equals("usuario")) {
                 portal = "usuario";
             }
+
+            System.out.println("=== LOGIN SECOND DEBUG ===");
+            System.out.println("Requested portal: " + portal);
+            System.out.println("==========================");
 
             // Check if OIDC is properly configured
             if (!isOidcConfigured()) {
@@ -109,18 +123,18 @@ public class AuthController {
                 System.err.println("AuthorizeUrl: '" + oidcConfig.getAuthorizeUrl() + "'");
                 // Return HTML error page instead of JSON
                 String htmlError = "<!DOCTYPE html>\n" +
-                        "<html lang=\"en\">\n" +
+                        "<html lang=\"es\">\n" +
                         "<head>\n" +
                         "    <meta charset=\"UTF-8\">\n" +
                         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                        "    <title>Configuration Error</title>\n" +
+                        "    <title>Error de Configuración</title>\n" +
                         "</head>\n" +
                         "<body>\n" +
-                        "    <h1>Authentication Service Unavailable</h1>\n" +
-                        "    <p>The authentication service is not properly configured. Please contact the administrator.</p>\n"
+                        "    <h1>Servicio de Autenticación no disponible</h1>\n" +
+                        "    <p>El servicio de autenticación no está configurado correctamente. Por favor, contacta al administrador.</p>\n"
                         +
-                        "    <p>Error: OIDC configuration incomplete</p>\n" +
-                        "    <p><a href=\"/\">Return to homepage</a></p>\n" +
+                        "    <p>Error: Configuración OIDC incompleta</p>\n" +
+                        "    <p><a href=\"/\">Volver a la página principal</a></p>\n" +
                         "</body>\n" +
                         "</html>";
                 return Response.status(Response.Status.SERVICE_UNAVAILABLE)
@@ -135,6 +149,10 @@ public class AuthController {
             // Build authorization URL
             String authUrl = buildAuthorizationUrl(portal, state);
 
+            System.out.println("=== LOGIN THIRD DEBUG ===");
+            System.out.println("Auth URL: " + authUrl);
+            System.out.println("==========================");
+
             // Redirect to gub.uy
             return Response.temporaryRedirect(URI.create(authUrl)).build();
 
@@ -143,16 +161,16 @@ public class AuthController {
             e.printStackTrace();
             // Return HTML error page instead of JSON ErrorResponse
             String htmlError = "<!DOCTYPE html>\n" +
-                    "<html lang=\"en\">\n" +
+                    "<html lang=\"es\">\n" +
                     "<head>\n" +
                     "    <meta charset=\"UTF-8\">\n" +
                     "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                    "    <title>Login Error</title>\n" +
+                    "    <title>Error al iniciar el login</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
-                    "    <h1>Login Error</h1>\n" +
-                    "    <p>An error occurred while initiating login. Please try again later.</p>\n" +
-                    "    <p><a href=\"/\">Return to homepage</a></p>\n" +
+                    "    <h1>Error al iniciar el login</h1>\n" +
+                    "    <p>Ocurrió un error al iniciar el login. Por favor, inténtalo nuevamente más tarde.</p>\n" +
+                    "    <p><a href=\"/\">Volver a la página principal</a></p>\n" +
                     "</body>\n" +
                     "</html>";
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -206,7 +224,8 @@ public class AuthController {
 
     /**
      * OIDC Callback - Handle the full authentication flow
-     * GET /api/auth/callback/web?code=...&state=...&portal=...
+     * GET /api/auth/callback/web?code=...&state=...
+     * Note: Portal is now determined by admin lookup, not query parameter
      */
     @GET
     @Path("/callback/web")
@@ -215,9 +234,16 @@ public class AuthController {
     public Response callbackWeb(@QueryParam("code") String code,
             @QueryParam("state") String state,
             @QueryParam("error") String error,
-            @QueryParam("portal") @DefaultValue("usuario") String portal,
+            @QueryParam("portal") String portal, // Portal parameter no longer used for determination
             @Context jakarta.ws.rs.core.HttpHeaders headers) {
         try {
+            System.out.println("=== CALLBACK FIRST DEBUG ===");
+            System.out.println("Code: " + code);
+            System.out.println("State: " + state);
+            System.out.println("Error: " + error);
+            System.out.println("Portal: " + portal);
+            System.out.println("==========================");
+
             // Check for OAuth error
             if (error != null) {
                 System.err.println("OAuth error: " + error);
@@ -233,10 +259,9 @@ public class AuthController {
                         .build();
             }
 
-            // Validate portal parameter
-            if (!portal.equals("admin") && !portal.equals("profesional") && !portal.equals("usuario")) {
-                portal = "usuario";
-            }
+            System.out.println("=== CALLBACK SECOND DEBUG ===");
+            System.out.println("Portal parameter received: " + portal + " (no longer used for determination)");
+            System.out.println("==========================");
 
             // 1. Exchange code for tokens
             Optional<TokenResponse> tokenResponse = authService.exchangeCodeForTokens(code);
@@ -249,39 +274,54 @@ public class AuthController {
             // 2. Decode id_token to get user info
             Optional<OidcUserInfo> userInfo = authService.decodeOidcToken(tokenResponse.get().getIdToken());
             if (!userInfo.isPresent()) {
+                System.out.println("=== CALLBACK THIRD DEBUG ===");
+                System.out.println("User info: " + userInfo.get().getNumeroDocumento());
+                System.out.println("==========================");
                 return Response.status(Response.Status.UNAUTHORIZED)
                         .entity(new AuthCallbackResponse("Invalid id_token"))
                         .build();
             }
 
-            // 3. Check admin status for admin portal
-            if ("admin".equals(portal)) {
-                String cedula = userInfo.get().getNumeroDocumento();
-                if (cedula == null || cedula.isEmpty()) {
-                    return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(new AuthCallbackResponse("No cedula found in user info"))
-                            .build();
-                }
-
-                boolean isAdmin = authService.isUserAdmin(cedula);
-                if (!isAdmin) {
-                    // Redirect to error page for non-admin users
-                    AuthCallbackResponse response = new AuthCallbackResponse();
-                    response.setError("not_admin");
-                    response.setRedirectUrl(frontendBaseUrl + "/?error=not_admin");
-                    return Response.ok(response).build();
-                }
+            // 3. Check admin status based on user data and determine effective portal/role
+            String cedula = userInfo.get().getNumeroDocumento();
+            if (cedula == null || cedula.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(new AuthCallbackResponse("No cedula found in user info"))
+                        .build();
             }
 
-            // 4. Create or find user and generate our JWT
-            Optional<Entity.UsuarioAuth> user = authService.createOrFindUser(userInfo.get());
+            // Check if user is an admin by looking them up in the administrador table
+            Administrador admin = administradorService.obtenerPorCedula(cedula);
+            boolean isAdmin = admin != null;
+
+            // Determine effective portal and role based on admin status
+            String effectivePortal;
+            UsuarioAuth.Role effectiveRole;
+
+            if (isAdmin) {
+                effectivePortal = "admin";
+                effectiveRole = UsuarioAuth.Role.ADMIN;
+            } else {
+                effectivePortal = "usuario";
+                effectiveRole = UsuarioAuth.Role.USUARIO;
+            }
+
+            System.out.println("=== CALLBACK THIRD DEBUG ===");
+            System.out.println("User cedula: " + cedula);
+            System.out.println("Is admin: " + isAdmin);
+            System.out.println("Effective portal: " + effectivePortal);
+            System.out.println("Effective role: " + effectiveRole);
+            System.out.println("==========================");
+
+            // 4. Create or find user with appropriate role and generate our JWT
+            Optional<Entity.UsuarioAuth> user = authService.createOrFindUserWithRole(userInfo.get(), effectiveRole);
             String backendToken = null;
             if (user.isPresent()) {
                 backendToken = authService.generateBackendToken(user.get());
             }
 
-            // 5. Determine redirect URL based on portal
-            String redirectUrl = getRedirectUrlForPortal(portal);
+            // 5. Determine redirect URL based on effective portal
+            String redirectUrl = getRedirectUrlForPortal(effectivePortal);
 
             // 6. Check if this is a browser request or API request
             String acceptHeader = headers.getHeaderString("Accept");
@@ -293,29 +333,29 @@ public class AuthController {
                 // Since frontend and backend are on different domains, we can't set cookies
                 // directly
                 // Instead, we'll redirect with URL parameters that the frontend can use
-                String authParams = "?auth_success=true&portal=" + portal +
+                String authParams = "?auth_success=true&portal=" + effectivePortal +
                         "&user_id=" + userInfo.get().getNumeroDocumento() +
                         "&backend_token=" + java.net.URLEncoder.encode(backendToken, "UTF-8");
 
                 String finalRedirectUrl = redirectUrl + authParams;
 
                 String htmlRedirect = "<!DOCTYPE html>\n" +
-                        "<html lang=\"en\">\n" +
+                        "<html lang=\"es\">\n" +
                         "<head>\n" +
                         "    <meta charset=\"UTF-8\">\n" +
                         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                        "    <title>Authentication Successful</title>\n" +
+                        "    <title>Autenticación exitosa</title>\n" +
                         "</head>\n" +
                         "<body>\n" +
                         "    <div style=\"text-align: center; padding: 50px;\">\n" +
-                        "        <h2>✅ Authentication Successful!</h2>\n" +
-                        "        <p>Redirecting you to your portal...</p>\n" +
+                        "        <h2>✅ Autenticación exitosa!</h2>\n" +
+                        "        <p>Redirigiendo a tu portal...</p>\n" +
                         "        <div style=\"margin: 20px 0;\">\n" +
                         "            <div style=\"display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;\"></div>\n"
                         +
                         "        </div>\n" +
                         "        <p><a href=\"" + finalRedirectUrl
-                        + "\">Click here if not redirected automatically</a></p>\n" +
+                        + "\">Cliquea aquí si no se redirige automáticamente.</a></p>\n" +
                         "    </div>\n" +
                         "    <style>\n" +
                         "        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n"
@@ -337,7 +377,7 @@ public class AuthController {
                 // API request - return JSON
                 AuthCallbackResponse response = new AuthCallbackResponse(
                         redirectUrl,
-                        portal,
+                        effectivePortal,
                         userInfo.get(),
                         backendToken);
 
@@ -421,11 +461,11 @@ public class AuthController {
     @Produces(MediaType.TEXT_HTML)
     public Response callbackMobile() {
         String htmlContent = "<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
+                "<html lang=\"es\">\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Redirecting to Mobile App...</title>\n" +
+                "    <title>Redirigiendo a la aplicación móvil...</title>\n" +
                 "    <meta http-equiv=\"refresh\" content=\"0; url=" + mobileRedirectUrl + "\">\n" +
                 "    <script>\n" +
                 "        // Try to open mobile app, fallback to redirect\n" +
@@ -433,9 +473,9 @@ public class AuthController {
                 "    </script>\n" +
                 "</head>\n" +
                 "<body>\n" +
-                "    <p>Redirecting to mobile application...</p>\n" +
-                "    <p>If the app doesn't open automatically, <a href=\"" + mobileRedirectUrl
-                + "\">click here</a>.</p>\n"
+                "    <p>Redirigiendo a la aplicación móvil...</p>\n" +
+                "    <p>Si la aplicación no se abre automáticamente, <a href=\"" + mobileRedirectUrl
+                + "\">cliquea aquí</a>.</p>\n"
                 +
                 "</body>\n" +
                 "</html>";

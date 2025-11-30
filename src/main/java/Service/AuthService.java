@@ -174,7 +174,17 @@ public class AuthService {
     public boolean isUserAdmin(String cedula) {
         try {
             Administrador admin = administradorService.obtenerPorCedula(cedula);
-            return admin != null && admin.getActivo();
+            boolean isAdmin = admin != null && admin.getActivo();
+            System.out.println("=== ADMIN LOOKUP DEBUG ===");
+            System.out.println("Looking up cedula: " + cedula);
+            System.out.println("Admin found: " + (admin != null));
+            if (admin != null) {
+                System.out.println("Admin active: " + admin.getActivo());
+                System.out.println("Admin ID: " + admin.getId());
+            }
+            System.out.println("Final result: " + isAdmin);
+            System.out.println("===========================");
+            return isAdmin;
         } catch (Exception e) {
             System.err.println("Error checking admin status: " + e.getMessage());
             return false;
@@ -182,9 +192,17 @@ public class AuthService {
     }
 
     /**
-     * Create or find user and generate our own JWT token
+     * Create or find user and generate our own JWT token (with default USUARIO
+     * role)
      */
     public Optional<UsuarioAuth> createOrFindUser(OidcUserInfo oidcUserInfo) {
+        return createOrFindUserWithRole(oidcUserInfo, UsuarioAuth.Role.USUARIO);
+    }
+
+    /**
+     * Create or find user with specific role and generate our own JWT token
+     */
+    public Optional<UsuarioAuth> createOrFindUserWithRole(OidcUserInfo oidcUserInfo, UsuarioAuth.Role role) {
         try {
             // Try to find existing user by cedula (numero_documento)
             String cedula = oidcUserInfo.getNumeroDocumento();
@@ -197,7 +215,7 @@ public class AuthService {
             UsuarioAuth user = new UsuarioAuth();
             user.setUsername(cedula); // Use cedula as username
             user.setEmail(oidcUserInfo.getEmail());
-            user.setRole(UsuarioAuth.Role.USUARIO); // Default role
+            user.setRole(role); // Set the specified role
             user.setActivo(true);
 
             // Set a temporary ID for JWT generation
