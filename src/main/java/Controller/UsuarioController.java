@@ -4,7 +4,9 @@ import Entity.DTO.UsuarioLocalPayload;
 import Entity.Usuarios.IdentificadorUsuario;
 import Entity.Usuarios.Usuario;
 import Entity.Usuarios.UsuarioLocal;
+import Repository.UsuarioRepository;
 import Service.UsuarioService;
+import com.google.api.client.auth.oauth2.TokenRequest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -18,6 +20,8 @@ public class UsuarioController {
 
     @Inject
     private UsuarioService usuarioService;
+    @Inject
+    private UsuarioRepository usuarioRepository;
 
     @POST
     @Path("/externo")
@@ -61,6 +65,23 @@ public class UsuarioController {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(e.getMessage()).build();
         }
+    }
+
+    // ACTUALIAZAR O CREAR TOKEN PARA FIREBASE Y ASOCIARLO A SU CORRESPONDIENTE USUARIO
+
+
+    @PUT
+    @Path("/{id}/fcm-token")
+    public Response actualizarToken(@PathParam("id") String id, String Tokenreq) {
+
+        Usuario u = usuarioRepository.buscarPorId(id);
+        if (u == null)
+            return Response.status(404).entity("Usuario no encontrado").build();
+
+        u.setFirebaseToken(Tokenreq);
+        usuarioRepository.actualizar(u);
+
+        return Response.ok("Token actualizado").build();
     }
 
 

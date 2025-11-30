@@ -30,6 +30,11 @@ public class Usuario {
     private String emailPrincipal;
     private String telefonoPrincipal;
 
+
+    // Necesario para las notificaciones MOBILE
+    @Column(name = "firebase_token", length = 600)
+    private String firebaseToken;
+
     @Enumerated(EnumType.STRING)
     private EstadoUsuario estado;
 
@@ -49,9 +54,9 @@ public class Usuario {
     @JsonIgnore
     private List<PoliticaDeAcceso> politicasDeAcceso = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuarioDestino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Notificacion> notificaciones = new ArrayList<>();
+//    @OneToMany(mappedBy = "usuarioDestino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<Notificacion> notificaciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -111,6 +116,10 @@ public class Usuario {
     public List<PoliticaDeAcceso> getPoliticasDeAcceso() { return politicasDeAcceso; }
     public void setPoliticasDeAcceso(List<PoliticaDeAcceso> politicasDeAcceso) { this.politicasDeAcceso = politicasDeAcceso; }
 
-    public List<Notificacion> getNotificaciones() { return notificaciones; }
+//    public List<Notificacion> getNotificaciones() { return notificaciones; }
+
+
+    public String getFirebaseToken() { return firebaseToken; }
+    public void setFirebaseToken(String firebaseToken) { this.firebaseToken = firebaseToken; }
 
 }

@@ -2,6 +2,7 @@ package Controller;
 
 import Entity.AccesoRequest;
 import Service.AccesoRequestService;
+import Service.NotificacionService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -15,12 +16,23 @@ public class AccesoRequestController {
     @Inject
     private AccesoRequestService accesoRequestService;
 
+    @Inject
+    private NotificacionService notificacionService;
+
     @POST
     @Path("/solicitud")
     public Response solicitarAcceso(@QueryParam("profesionalId") String profesionalId,
             @QueryParam("usuarioId") String usuarioId,
             @QueryParam("motivo") String motivo) {
         AccesoRequest req = accesoRequestService.crearSolicitud(profesionalId, usuarioId, motivo);
+
+        notificacionService.crear(
+                usuarioId,
+                "Nueva solicitud de acceso",
+                "El profesional " + profesionalId + " solicitó acceso a tu historia clínica."
+        );
+
+
         return Response.ok(req).build();
     }
 
@@ -28,6 +40,15 @@ public class AccesoRequestController {
     @Path("/solicitud/{id}/aprobar")
     public Response aprobar(@PathParam("id") String id) {
         accesoRequestService.aprobarSolicitud(id);
+        AccesoRequest req = accesoRequestService.buscarPorId(id);
+
+        // No creo usarlo
+//        notificacionService.crear(
+//                req.getProfesionalSolicitante().getId(),
+//                "Solicitud aprobada",
+//                "Tu solicitud para acceder al usuario " + req.getUsuario().getNombres() + req.getUsuario().getApellidos() + " fue aprobada."
+//        );
+
         return Response.ok("Solicitud aprobada").build();
     }
 

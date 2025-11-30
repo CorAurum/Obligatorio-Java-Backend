@@ -11,46 +11,72 @@ import java.time.LocalDateTime;
  * 12) Notificacion
  */
 @Entity
-@Table(name = "notificacion")
+@Table(name = "notificaciones")
 public class Notificacion {
 
     @Id
-    @Column(name = "id", nullable = false)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private String tipo;
+    private String userId;
+
+    private String titulo;
+
     private String mensaje;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_destino_id")
-    @JsonBackReference("usuario-notificaciones")
-    private Usuario usuarioDestino;
+    private boolean leida = false; // Por defecto no leída
 
-    private LocalDateTime fechaEnvio;
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    @Enumerated(EnumType.STRING)
-    private EstadoNotificacion estado;
+    // Getters y Setters
 
-    public enum EstadoNotificacion { ENVIADA, LEIDA }
+    public Long getId() {
+        return id;
+    }
 
-    public Notificacion() {}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    // Getters / Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getUserId() {
+        return userId;
+    }
 
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    public String getMensaje() { return mensaje; }
-    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public Usuario getUsuarioDestino() { return usuarioDestino; }
-    public void setUsuarioDestino(Usuario usuarioDestino) { this.usuarioDestino = usuarioDestino; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
-    public LocalDateTime getFechaEnvio() { return fechaEnvio; }
-    public void setFechaEnvio(LocalDateTime fechaEnvio) { this.fechaEnvio = fechaEnvio; }
+    public String getMensaje() {
+        return mensaje;
+    }
 
-    public EstadoNotificacion getEstado() { return estado; }
-    public void setEstado(EstadoNotificacion estado) { this.estado = estado; }
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
+    }
+
+    public boolean isLeida() {
+        return leida;
+    }
+
+    public void setLeida(boolean leida) {
+        this.leida = leida;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
 }
+
+

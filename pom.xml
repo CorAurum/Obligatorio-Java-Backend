@@ -23,6 +23,14 @@
   <dependencies>
 
 
+    <!-- FIREBASE -->
+
+    <dependency>
+      <groupId>com.google.firebase</groupId>
+      <artifactId>firebase-admin</artifactId>
+      <version>9.7.0</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api -->
     <dependency>
       <groupId>jakarta.persistence</groupId>

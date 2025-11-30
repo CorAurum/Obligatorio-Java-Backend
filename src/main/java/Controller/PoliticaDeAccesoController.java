@@ -12,6 +12,7 @@ import Repository.ProfesionalDeSaludRepository;
 import Repository.UsuarioRepository;
 import Service.AccesoLogService;
 import Service.DocumentoClinicoService;
+import Service.NotificacionService;
 import Service.PoliticaDeAccesoService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -41,6 +42,8 @@ public class PoliticaDeAccesoController {
     private DocumentoClinicoService documentoClinicoService;
     @Inject
     private AccesoLogService accesoLogService;
+    @Inject
+    private NotificacionService notificacionService;
 
     // Crear nueva política
     @POST
@@ -145,6 +148,14 @@ public class PoliticaDeAccesoController {
 
         // Si está permitido, devolver los documentos
         List<DocumentoClinicoDTO> docs = documentoClinicoService.listarPorUsuarioDTO(usuarioId);
+
+        notificacionService.crear(usuarioId,
+                "NUEVA_SOLICITUD",
+                "Nueva solicitud de acceso" +
+                "El profesional " + profesionalId + " solicitó acceso al usuario " + usuarioId
+        );
+
+
         return Response.ok(docs).build();
     }
 

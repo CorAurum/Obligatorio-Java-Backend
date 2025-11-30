@@ -76,4 +76,8 @@ public class AccesoRequestService {
         return accesoRequestRepository.listarPendientesPorUsuario(usuarioId);
     }
 
+    public AccesoRequest buscarPorId(String id) {
+        return accesoRequestRepository.buscarPorId(id);
+    }
+
 }
