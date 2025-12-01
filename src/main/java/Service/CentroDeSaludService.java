@@ -60,7 +60,7 @@ public class CentroDeSaludService {
     private void enviarAlPeriferico(CentroDeSalud centro) {
         try {
             // 🔹 URL del periférico (ajustar si cambia el dominio o puerto)
-            String perifericoUrl = "http://localhost:8081/api/clinicas";
+            String perifericoUrl = "http://p1.enbondi.xyz/api/clinicas";
 
             ClinicaPayload payload = new ClinicaPayload(
                     centro.getId(),

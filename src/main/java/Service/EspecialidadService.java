@@ -34,7 +34,7 @@ public class EspecialidadService {
     }
 
     // CON ESTO SINCRONIZAMOS LAS ESPECIALIDADES CREADAS AL CENTRAL CON EL PERIFERICO PARA ALOJARLAS Y SEAN IGUALES EN AMBAS BD
-    private static final String PERIFERICO_BASE = "http://localhost:8081/api/especialidades";
+    private static final String PERIFERICO_BASE = "http://p1.enbondi.xyz/api/especialidades";
     // cámbialo al dominio real
 
     private final Client client = ClientBuilder.newClient();
