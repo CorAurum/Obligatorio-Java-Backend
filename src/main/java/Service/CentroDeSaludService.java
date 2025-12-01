@@ -68,7 +68,7 @@ public class CentroDeSaludService {
                     centro.getDireccion(),
                     centro.getTelefono(),
                     centro.getTipoInstitucion(),
-                    "Dom1" // asegúrate que este campo exista en tu entidad
+                    centro.getNombre().replaceAll("\\s+", "").toLowerCase()  //"Dom1" // asegúrate que este campo exista en tu entidad
             );
 
             Client client = ClientBuilder.newClient();
