@@ -33,6 +33,7 @@ public class AccesoRequestService {
         AccesoRequest req = new AccesoRequest();
         req.setId(UUID.randomUUID().toString());
         req.setProfesionalSolicitante(prof);
+        req.setSolicitanteId(prof.getId());
         req.setUsuario(usuario);
         req.setMotivo(motivo);
         req.setFechaSolicitud(LocalDateTime.now());
