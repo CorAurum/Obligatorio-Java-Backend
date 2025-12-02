@@ -70,10 +70,11 @@ public class AccesoLogService {
     public List<AccesoLogDTO> listarDTOporUsuario(String usuarioId) {
         List<AccesoLog> logs = accesoLogRepository.listarPorUsuario(usuarioId);
 
+        // Log the number of logs fetched
         System.out.println("Logs fetched: " + logs.size());
 
         return logs.stream().map(log -> {
-
+            // Fetch related 'profesional' details
             var profesional = profesionalDeSaludRepository.buscarPorId(log.getUsuarioSolicitante());
 
             String nombre = profesional != null ? profesional.getNombres() : "Desconocido";
@@ -82,6 +83,7 @@ public class AccesoLogService {
                     ? profesional.getCentroDeSalud().getNombre()
                     : "No asignado";
 
+            // Log the mapping process
             System.out.println("Mapping log: " + log.getUsuarioSolicitante() + ", " + nombre + ", " + centro);
 
             return new AccesoLogDTO(

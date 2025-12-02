@@ -1,8 +1,6 @@
 package Controller;
 
 import Service.AccesoLogService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,9 +19,9 @@ public class AccesoLogController {
     AccesoLogService accesoLogService;
 
     @GET
-    public Response listar(@QueryParam("usuarioId") String usuarioId) throws JsonProcessingException {
+    public Response listar(@QueryParam("usuarioId") String usuarioId) {
         // Log the incoming query parameter
-        logger.info("Received request to listar with usuarioId: {}" + usuarioId);
+        logger.info("Received request to listar with usuarioId: {} " + usuarioId);
 
         if (usuarioId == null || usuarioId.isBlank()) {
             logger.info("usuarioId is null or blank");
@@ -33,21 +31,14 @@ public class AccesoLogController {
         }
 
         // Log before calling the service
-        logger.info("Calling service to get AccesoLogDTO list for usuarioId: {}" + usuarioId);
+        logger.info("Calling service to get AccesoLogDTO list for usuarioId: {} " + usuarioId);
 
         var lista = accesoLogService.listarDTOporUsuario(usuarioId);
 
         // Log the number of items returned
-        logger.info("Service returned {} logs" + lista.size());
+        logger.info("Service returned {} logs " + lista.size());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(lista);
-
-// Log the response for debugging
-        System.out.println("Response JSON: " + jsonResponse);
-
-        return Response.ok(lista)
-                .type("application/json")
-                .build();
+        return Response.ok(lista).build();
     }
+
 }
