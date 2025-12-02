@@ -20,18 +20,18 @@ public class AccesoRequest {
 
     private String solicitanteId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id")
     @JsonBackReference("usuario-requests")
     private Usuario usuario;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "documento_id")
     @JsonBackReference("documento-requests")
     private DocumentoClinico documentoClinico;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profesional_id")
     @JsonBackReference("profesional-requests")
     private ProfesionalDeSalud profesionalSolicitante;
