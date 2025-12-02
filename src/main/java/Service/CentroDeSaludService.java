@@ -71,6 +71,8 @@ public class CentroDeSaludService {
                     centro.getNombre().replaceAll("\\s+", "").toLowerCase()  //"Dom1" // asegúrate que este campo exista en tu entidad
             );
 
+            logger.info("Sending payload to periferico: " + payload.toString());
+
             Client client = ClientBuilder.newClient();
             Response response = client.target(perifericoUrl)
                     .request(MediaType.APPLICATION_JSON)
