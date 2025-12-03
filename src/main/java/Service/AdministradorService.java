@@ -45,7 +45,6 @@ public class AdministradorService {
     public void AjustarAdministrador(Long id) {
         Administrador admin = administradorRepository.buscarPorId(id);
         admin.setActivo(false);
-        administradorRepository.actualizar(admin);
     }
 
     public Administrador obtenerPorCedula(String cedula) {
