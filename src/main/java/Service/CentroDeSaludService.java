@@ -1,6 +1,7 @@
 package Service;
 
 import Entity.CentroDeSalud;
+import Entity.DTO.PayloadPeriferico.ClinicaBajaPayload;
 import Entity.DTO.PayloadPeriferico.ClinicaPayload;
 import Entity.Usuarios.Administrador;
 import Repository.AdministradorRepository;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -92,5 +94,59 @@ public class CentroDeSaludService {
             logger.severe("[SYNC] Falló la sincronización con el periférico: " + e.getMessage());
         }
     }
+
+
+    // INHABILITA CLINICA
+
+
+    private void enviarFechaBajaAlPeriferico(CentroDeSalud centro) {
+        try {
+            String perifericoUrl = "https://p1.enbondi.xyz/api/clinicas/baja";
+
+            // payload only with id + fechaBaja
+            ClinicaBajaPayload payload = new ClinicaBajaPayload(
+                    centro.getId(),
+                    LocalDateTime.now()
+            );
+
+            logger.info("Sending fechaBaja to periférico: " + payload.toString());
+
+            Client client = ClientBuilder.newClient();
+            Response response = client.target(perifericoUrl)
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+
+            if (response.getStatus() == 200) {
+                logger.info("[SYNC] FechaBaja enviada correctamente para centro: " + centro.getNombre());
+            } else {
+                logger.warning("[SYNC] Error al enviar fechaBaja. Código: " + response.getStatus());
+                logger.warning(response.readEntity(String.class));
+            }
+
+            response.close();
+            client.close();
+
+        } catch (Exception e) {
+            logger.severe("[SYNC] Falló el envío de fechaBaja: " + e.getMessage());
+        }
+    }
+
+
+
+    public CentroDeSalud inhabilitarCentro(String id) {
+        CentroDeSalud centro = centroDeSaludRepository.buscarPorId(id);
+
+        if (centro == null) {
+            throw new RuntimeException("Centro de Salud no encontrado");
+        }
+
+        centro.setEstado(CentroDeSalud.EstadoCentro.INHABILITADO);
+        centroDeSaludRepository.actualizar(centro);
+        enviarFechaBajaAlPeriferico(centro);
+
+        return centro;
+    }
+
+
 
 }

@@ -31,5 +31,18 @@ public class CentroDeSaludController {
     public List<CentroDeSalud> listar() {
         return centroDeSaludService.listarCentros();
     }
+
+
+    @PUT
+    @Path("/{id}/inhabilitar")
+    public Response inhabilitarCentro(@PathParam("id") String id) {
+        try {
+            CentroDeSalud actualizado = centroDeSaludService.inhabilitarCentro(id);
+            return Response.ok(actualizado).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
 }
 
