@@ -66,7 +66,7 @@ public class AdministradorController {
 
     // DELETE /administradores/{id}
     @PUT
-    @Path("/{id}")
+    @Path("/{id}/inhabilitar")
     public Response AjustaAdministrador(@PathParam("id") Long id) {
         try {
             administradorService.AjustarAdministrador(id);
