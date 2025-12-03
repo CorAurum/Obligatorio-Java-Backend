@@ -42,4 +42,12 @@ public class AdministradorRepository {
             .getResultList();
         return resultado.isEmpty() ? null : resultado.get(0);
     }
+
+
+    public void inhabilitarAdministrador(Long id) {
+        em.createQuery("UPDATE Administrador a SET a.activo = false WHERE a.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+    }
+
 }

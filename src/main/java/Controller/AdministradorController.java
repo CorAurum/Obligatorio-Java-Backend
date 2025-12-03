@@ -2,6 +2,7 @@ package Controller;
 
 
 import Entity.Usuarios.Administrador;
+import Repository.AdministradorRepository;
 import Service.AdministradorService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -16,6 +17,9 @@ public class AdministradorController {
 
     @Inject
     private AdministradorService administradorService;
+
+    @Inject
+    private AdministradorRepository administradorRepository;
 
     // POST /administradores
     @POST
@@ -69,11 +73,11 @@ public class AdministradorController {
     @Path("/{id}/inhabilitar")
     public Response AjustaAdministrador(@PathParam("id") Long id) {
         try {
-            administradorService.AjustarAdministrador(id);
-            return Response.ok("Administrador eliminado").build();
+            administradorRepository.inhabilitarAdministrador(id);
+            return Response.ok("Administrador Inhabilitado").build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Error al eliminar: " + e.getMessage())
+                    .entity("Administrador Inhabilitado: " + e.getMessage())
                     .build();
         }
     }
