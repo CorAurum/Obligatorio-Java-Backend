@@ -13,16 +13,26 @@ public class CorsFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        MultivaluedMap<String, Object> headers = responseContext.getHeaders();
 
-        // Allow requests from your frontend
-        headers.add("Access-Control-Allow-Origin", "http://localhost:3000");
-        headers.add("Access-Control-Allow-Origin", "https://hcen-central.vercel.app");
-        headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-        headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
-        headers.add("Access-Control-Allow-Credentials", "true");
+        String origin = requestContext.getHeaderString("Origin");
 
-        // Handle preflight OPTIONS requests
+        // Define allowed origins
+        String[] allowedOrigins = {
+                "http://localhost:3000",
+                "https://hcen-central.vercel.app"
+        };
+
+        for (String allowed : allowedOrigins) {
+            if (allowed.equals(origin)) {
+                responseContext.getHeaders().putSingle("Access-Control-Allow-Origin", origin);
+                break;
+            }
+        }
+
+        responseContext.getHeaders().putSingle("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        responseContext.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+        responseContext.getHeaders().putSingle("Access-Control-Allow-Credentials", "true");
+
         if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
             responseContext.setStatus(200);
         }
