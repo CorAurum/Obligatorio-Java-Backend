@@ -50,4 +50,13 @@ public class AdministradorRepository {
                 .executeUpdate();
     }
 
+    public void habilitarAdministrador(Long id) {
+        Administrador admin = em.find(Administrador.class, id);
+        if (admin == null) {
+            throw new RuntimeException("Administrador no encontrado: id=" + id);
+        }
+        admin.setActivo(true);
+        // NO MERGE, entity is managed → auto flush at transaction commit
+    }
+
 }

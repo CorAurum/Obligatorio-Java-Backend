@@ -73,7 +73,14 @@ public class AdministradorController {
     @Path("/{id}/inhabilitar")
     public Response AjustaAdministrador(@PathParam("id") Long id) {
         try {
-            administradorRepository.inhabilitarAdministrador(id);
+
+            Administrador admin = administradorService.obtenerPorId(id);
+                    if(admin.getActivo() == true) {
+                        administradorRepository.inhabilitarAdministrador(id);
+                    } else {
+                        administradorRepository.habilitarAdministrador(id);
+                    }
+
             return Response.ok("Administrador Inhabilitado").build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)
