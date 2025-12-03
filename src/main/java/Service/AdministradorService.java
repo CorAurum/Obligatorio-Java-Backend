@@ -42,9 +42,10 @@ public class AdministradorService {
         return admin;
     }
 
-    public void eliminarAdministrador(Long id) {
+    public void AjustarAdministrador(Long id) {
         Administrador admin = administradorRepository.buscarPorId(id);
         admin.setActivo(false);
+        administradorRepository.actualizar(admin);
     }
 
     public Administrador obtenerPorCedula(String cedula) {

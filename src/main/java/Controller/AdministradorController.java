@@ -67,9 +67,9 @@ public class AdministradorController {
     // DELETE /administradores/{id}
     @PUT
     @Path("/{id}")
-    public Response eliminarAdministrador(@PathParam("id") Long id) {
+    public Response AjustaAdministrador(@PathParam("id") Long id) {
         try {
-            administradorService.eliminarAdministrador(id);
+            administradorService.AjustarAdministrador(id);
             return Response.ok("Administrador eliminado").build();
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)
