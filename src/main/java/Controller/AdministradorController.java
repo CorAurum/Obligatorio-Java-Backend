@@ -65,7 +65,7 @@ public class AdministradorController {
     }
 
     // DELETE /administradores/{id}
-    @DELETE
+    @PUT
     @Path("/{id}")
     public Response eliminarAdministrador(@PathParam("id") Long id) {
         try {
