@@ -62,6 +62,9 @@ public class ProfesionalDeSalud {
 
     public enum EstadoProfesional { ACTIVO, SUSPENDIDO }
 
+
+
+
     public ProfesionalDeSalud() {}
 
     // Getters / Setters

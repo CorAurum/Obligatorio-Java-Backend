@@ -33,6 +33,40 @@ public class ProfesionalDeSaludService {
     @Inject
     private EspecialidadRepository especialidadRepository;
 
+
+    // Inline DTO inside the service
+    public static class ProfesionalDTO {
+        public String id;
+        public String nombreCentro;
+        public String numeroRegistro;
+        public String nombres;
+        public String apellidos;
+        public String email;
+        public String telefono;
+        public LocalDate fechaRegistroProfesional;
+        public String estado;
+
+        public ProfesionalDTO(ProfesionalDeSalud p) {
+            this.id = p.getId();
+            this.nombreCentro = (p.getCentroDeSalud() != null) ? p.getCentroDeSalud().getNombre() : null;
+            this.numeroRegistro = p.getNumeroRegistro();
+            this.nombres = p.getNombres();
+            this.apellidos = p.getApellidos();
+            this.email = p.getEmail();
+            this.telefono = p.getTelefono();
+            this.fechaRegistroProfesional = p.getFechaRegistroProfesional();
+            this.estado = p.getEstado().name();
+        }
+    }
+
+    // UPDATED METHOD — returns the DTOs instead of the entities
+    public List<ProfesionalDTO> listarProfesionales() {
+        return profesionalDeSaludRepository.listarTodos()
+                .stream()
+                .map(ProfesionalDTO::new)
+                .toList();
+    }
+
 //    public ProfesionalDeSalud registrarProfesional(ProfesionalDeSalud p, String centroId) {
 //        CentroDeSalud centro = centroDeSaludRepository.buscarPorId(centroId);
 //      //  Administrador admin = administradorRepository.buscarPorId(adminId);
@@ -94,10 +128,6 @@ public class ProfesionalDeSaludService {
 
         profesionalDeSaludRepository.crear(p);
         return p;
-    }
-
-    public java.util.List<ProfesionalDeSalud> listarProfesionales() {
-        return profesionalDeSaludRepository.listarTodos();
     }
 
     public ProfesionalDeSalud obtenerPorId(String id) {
