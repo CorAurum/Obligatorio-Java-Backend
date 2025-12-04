@@ -146,6 +146,7 @@ public class CentroDeSaludService {
         } else {
             centro.setEstado(CentroDeSalud.EstadoCentro.HABILITADO);
             centroDeSaludRepository.actualizar(centro);
+            enviarFechaBajaAlPeriferico(centro);
         }
 
         return centro;
