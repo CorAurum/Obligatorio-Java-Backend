@@ -139,10 +139,14 @@ public class CentroDeSaludService {
         if (centro == null) {
             throw new RuntimeException("Centro de Salud no encontrado");
         }
-
-        centro.setEstado(CentroDeSalud.EstadoCentro.INHABILITADO);
-        centroDeSaludRepository.actualizar(centro);
-        enviarFechaBajaAlPeriferico(centro);
+        if (centro.getEstado() == CentroDeSalud.EstadoCentro.HABILITADO) {
+            centro.setEstado(CentroDeSalud.EstadoCentro.INHABILITADO);
+            centroDeSaludRepository.actualizar(centro);
+            enviarFechaBajaAlPeriferico(centro);
+        } else {
+            centro.setEstado(CentroDeSalud.EstadoCentro.HABILITADO);
+            centroDeSaludRepository.actualizar(centro);
+        }
 
         return centro;
     }
