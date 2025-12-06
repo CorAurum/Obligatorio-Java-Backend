@@ -101,10 +101,19 @@ public class PoliticaDeAccesoService {
                 continue;
 
             // 🔹 Debe compartir al menos una especialidad
-            boolean comparteEspecialidad = prof.getEspecialidades().stream()
-                    .anyMatch(espProf -> p.getEspecialidades().stream()
-                            .anyMatch(espPol -> espPol.getId().equals(espProf.getId()))
-                    );
+            boolean comparteEspecialidad = false;
+
+            // Si la política tiene especialidades definidas, buscamos una coincidencia
+            if (p.getEspecialidades() != null && !p.getEspecialidades().isEmpty()) {
+                // Compara las especialidades del profesional con las de la política
+                comparteEspecialidad = prof.getEspecialidades().stream()
+                        .anyMatch(espProf -> p.getEspecialidades().stream()
+                                .anyMatch(espPol -> espPol.getId().equals(espProf.getId()))
+                        );
+            } else {
+                // Si no hay especialidades en la política, asumimos que habilita todo el centro
+                comparteEspecialidad = true;
+            }
 
             if (comparteEspecialidad)
                 return true; // Acceso concedido
