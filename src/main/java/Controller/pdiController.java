@@ -19,5 +19,14 @@ public class pdiController {
     public pdiResponse getPersona(@PathParam("doc") String doc) {
         return soapService.callObtPersonaPorDoc("AAA", "BBB", doc, "DO");
     }
+
+
+    @GET
+    @Path("/persona/over18/{doc}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public boolean isPersonaMayorDeEdad(@PathParam("doc") String doc) {
+        return soapService.isPersonaMayorDeEdad("AAA", "BBB", doc, "DO");
+    }
+
 }
 

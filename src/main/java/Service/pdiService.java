@@ -110,6 +110,75 @@ public class pdiService {
         return result;
     }
 
+//    private String getTextContent(Document doc, String tag) {
+//        NodeList nodes = doc.getElementsByTagNameNS("http://agesic.gub.uy/dnic", tag);
+//        if (nodes.getLength() > 0) {
+//            return nodes.item(0).getTextContent();
+//        }
+//        return null;
+//    }
+
+
+    // New method to check if the person is over 18
+    public boolean isPersonaMayorDeEdad(String org, String password, String doc, String tipoDoc) {
+        // 1. Craft SOAP request
+        String soapRequest =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+                        "xmlns:dnic=\"http://agesic.gub.uy/dnic\">" +
+                        "<soapenv:Header/>" +
+                        "<soapenv:Body>" +
+                        "<dnic:ObtPersonaPorDocRequest>" +
+                        "<dnic:organizacion>" + org + "</dnic:organizacion>" +
+                        "<dnic:passwordEntidad>" + password + "</dnic:passwordEntidad>" +
+                        "<dnic:nroDocumento>" + doc + "</dnic:nroDocumento>" +
+                        "<dnic:tipoDocumento>" + tipoDoc + "</dnic:tipoDocumento>" +
+                        "</dnic:ObtPersonaPorDocRequest>" +
+                        "</soapenv:Body>" +
+                        "</soapenv:Envelope>";
+
+        // 2. Send request
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(SOAP_ENDPOINT)
+                .request(MediaType.TEXT_XML)
+                .header("Content-Type", "text/xml;charset=UTF-8")
+                .post(Entity.entity(soapRequest, MediaType.TEXT_XML));
+
+        String rawXml = response.readEntity(String.class);
+        response.close();
+        client.close();
+
+        // 3. Parse response and check age
+        return parseEdad(rawXml);
+    }
+
+    private boolean parseEdad(String xml) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            Document doc = factory.newDocumentBuilder()
+                    .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+
+            // Check for errors in the response
+            NodeList errores = doc.getElementsByTagNameNS("http://agesic.gub.uy/dnic", "errores");
+            if (errores.getLength() > 0) {
+                return false; // If there are errors, assume "not over 18" or handle as needed
+            }
+
+            // Extract the date of birth (fechaNacimiento)
+            String fechaNacimiento = getTextContent(doc, "fechaNacimiento");
+            if (fechaNacimiento == null) {
+                return false; // If no birthdate found, assume "not over 18" or handle as needed
+            }
+
+            // Check if the person is over 18
+            return MayorDeEdad(fechaNacimiento);
+        } catch (Exception e) {
+            // If there's any error during parsing or logic, return false
+            return false;
+        }
+    }
+
     private String getTextContent(Document doc, String tag) {
         NodeList nodes = doc.getElementsByTagNameNS("http://agesic.gub.uy/dnic", tag);
         if (nodes.getLength() > 0) {
@@ -125,10 +194,10 @@ public class pdiService {
             Period age = Period.between(birthDate, today);
             return age.getYears() >= 18;
         } catch (Exception e) {
-            // Log or handle parse exception
-            return false; // default to false if parsing fails
+            return false; // Return false if there's a parsing issue
         }
     }
+
 
 
 }
