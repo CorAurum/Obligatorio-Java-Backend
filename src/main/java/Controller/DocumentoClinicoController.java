@@ -5,7 +5,6 @@ import Entity.DTO.DocumentoClinicoParaUsuarioDTO;
 import Entity.DTO.DocumentoClinicoPayload;
 import Entity.DocumentoClinico;
 import Service.DocumentoClinicoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -75,19 +74,10 @@ public class DocumentoClinicoController {
     @Path("/{id}/detalle")
     public Response obtenerDetalleDocumento(@PathParam("id") String documentoId) {
         try {
-
-            // ---- LOG REQUEST ----
-            System.out.println("📥 [GET] /" + documentoId + "/detalle");
-            System.out.println(" → Path param documentoId: " + documentoId);
-
             DocumentoClinicoParaUsuarioDTO dto =
                     documentoClinicoService.obtenerDocumentoCompleto(documentoId);
 
-            // ---- LOG RESPONSE ----
-            ObjectMapper mapper = new ObjectMapper();
-            System.out.println("📤 Response JSON:");
-            System.out.println(mapper.writeValueAsString(dto));
-
+            // Devuelve el JSON recibido desde el periférico al front
             return Response.ok(dto).build();
 
         } catch (Exception e) {
@@ -98,7 +88,6 @@ public class DocumentoClinicoController {
                     .build();
         }
     }
-
 
 
 }
